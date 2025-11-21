@@ -25,6 +25,7 @@ public class MethodDto {
 
   private String qualifiedSignature;
   private String simpleSignature;
+  private String unsolvedReason;
   private String srcUrl;
 
   @Schema(required = true)

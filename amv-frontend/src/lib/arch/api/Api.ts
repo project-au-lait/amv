@@ -138,6 +138,7 @@ export interface MethodModel {
   returnType: string;
   qualifiedSignature?: string;
   simpleSignature?: string;
+  unsolvedReason?: string;
   srcUrl?: string;
   dummy: boolean;
   /** @uniqueItems true */
@@ -300,7 +301,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://localhost:8081";
+  public baseUrl: string = "http://localhost:8080";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -495,7 +496,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title amv-backend API
  * @version 1.0-SNAPSHOT
- * @baseUrl http://localhost:8081
+ * @baseUrl http://localhost:8080
  */
 export class Api<
   SecurityDataType extends unknown,
