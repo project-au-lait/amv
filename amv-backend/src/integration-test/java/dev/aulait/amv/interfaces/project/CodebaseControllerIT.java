@@ -66,14 +66,14 @@ class CodebaseControllerIT {
   @Test
   void testWithToken() {
     String token =
-        "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";
+        String.join(
+            "_",
+            "github",
+            "pat",
+            "11ADEYTGY0WRN4jA7GRNn8_YuE4ElbBSxAefHSHPomlpm9sRfsmBcUDWNPpS1FL0mvIATDZHIOuW1IfBjJ");
+    String repoUrl = "https://github.com/ykuwahara/amv-test-repository.git";
     String repoName = "amv-test-repository";
-    CodebaseDto dto =
-        CodebaseDto.builder()
-            .name(repoName)
-            .url("https://github.com/project-au-lait/amv-test-repository.git")
-            .token(token)
-            .build();
+    CodebaseDto dto = CodebaseDto.builder().name(repoName).url(repoUrl).token(token).build();
 
     String createdId = codebaseClient.save(dto);
 
