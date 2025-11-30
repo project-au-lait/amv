@@ -92,6 +92,9 @@ EXPOSE $BACKEND_PORT
 
 USER root
 
+RUN mkdir -p /home/jboss/.m2 && chown 185 /home/jboss/.m2 \
+  && mkdir -p /mnt/amv && chown 185 /mnt/amv
+
 RUN microdnf install -y which git java-17-openjdk-devel java-11-openjdk && \
   microdnf clean all && \
   # Install jenv
@@ -99,8 +102,6 @@ RUN microdnf install -y which git java-17-openjdk-devel java-11-openjdk && \
   echo 'export PATH="$HOME/.jenv/bin:$PATH"' >> ~/.bash_profile && \
   echo 'eval "$(jenv init - bash)"' >> ~/.bash_profile && \
   chown 185 ~/.jenv -R
-
-RUN mkdir -p /home/jboss/.m2 && chown 185 /home/jboss/.m2
 
 USER 185
 
