@@ -100,6 +100,19 @@ CREATE TABLE field (
 );
 
 
+CREATE TABLE flow_statement (
+  id CHAR(22) PRIMARY KEY,
+  parent_id CHAR(22) REFERENCES flow_statement,
+  type_id CHAR(22),
+  method_seq_no INT,
+  kind CHAR(1),
+  content TEXT,
+  line_no INT,
+  FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no),
+  --{commonColumns}
+);
+
+
 CREATE TABLE method_call (
   type_id CHAR(22),
   method_seq_no INT,
@@ -113,6 +126,7 @@ CREATE TABLE method_call (
   callee_type_id CHAR(22),
   callee_seq_no INT,
   caller_seq_no INT,
+  flow_statement_id CHAR(22) REFERENCES flow_statement,
   PRIMARY KEY (type_id, method_seq_no, seq_no),
   FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no),
   FOREIGN KEY (callee_type_id, callee_seq_no) REFERENCES method (type_id, seq_no),

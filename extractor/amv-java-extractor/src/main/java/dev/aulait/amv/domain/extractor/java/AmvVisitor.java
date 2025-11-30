@@ -6,8 +6,10 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.MethodReferenceExpr;
+import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import dev.aulait.amv.domain.extractor.fdo.FieldFdo;
+import dev.aulait.amv.domain.extractor.fdo.FlowStatementFdo;
 import dev.aulait.amv.domain.extractor.fdo.MethodCallFdo;
 import dev.aulait.amv.domain.extractor.fdo.MethodFdo;
 import dev.aulait.amv.domain.extractor.fdo.TypeFdo;
@@ -78,6 +80,11 @@ public class AmvVisitor extends VoidVisitorAdapter<AmvVisitorContext> {
       methodCall.setCallerId(currentMethodCall.getId());
     }
 
+    FlowStatementFdo currentFlowStatement = context.getCurrentFlowStatement();
+    if (currentFlowStatement != null) {
+      methodCall.setFlowStatement(currentFlowStatement);
+    }
+
     context.pushMethodCall(methodCall);
     super.visit(n, context);
     context.popMethodCall();
@@ -96,5 +103,19 @@ public class AmvVisitor extends VoidVisitorAdapter<AmvVisitorContext> {
     }
 
     super.visit(n, context);
+  }
+
+  @Override
+  public void visit(IfStmt n, AmvVisitorContext context) {
+    FlowStatementFdo newFlowStatement = converter.convert(n);
+
+    FlowStatementFdo currentFlowStatement = context.getCurrentFlowStatement();
+    if (currentFlowStatement != null) {
+      newFlowStatement.setParent(currentFlowStatement);
+    }
+
+    context.pushFlowStatement(newFlowStatement);
+    super.visit(n, context);
+    context.popFlowStatement();
   }
 }

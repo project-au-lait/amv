@@ -1,9 +1,9 @@
 package dev.aulait.amv.domain.process;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
@@ -22,41 +22,32 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Entity
-@Table(name = "method_call")
-public class MethodCallEntity extends dev.aulait.amv.arch.jpa.BaseEntity
+@Table(name = "flow_statement")
+public class FlowStatementEntity extends dev.aulait.amv.arch.jpa.BaseEntity
     implements java.io.Serializable {
 
-  @EqualsAndHashCode.Include @EmbeddedId private MethodCallEntityId id;
+  @EqualsAndHashCode.Include
+  @Id
+  @Column(name = "id")
+  private String id;
 
-  @Column(name = "qualified_signature")
-  private String qualifiedSignature;
+  @Column(name = "kind")
+  private String kind;
 
-  @Column(name = "fallback_signature")
-  private String fallbackSignature;
-
-  @Column(name = "interface_signature")
-  private String interfaceSignature;
-
-  @Column(name = "unsolved_reason")
-  private String unsolvedReason;
-
-  @Column(name = "argument_types")
-  private String argumentTypes;
+  @Column(name = "content")
+  private String content;
 
   @Column(name = "line_no")
   private Integer lineNo;
 
-  @Column(name = "caller_seq_no")
-  private Integer callerSeqNo;
-
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "flow_statement_id", referencedColumnName = "id")
+  @JoinColumn(name = "parent_id", referencedColumnName = "id")
   private FlowStatementEntity flowStatement;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumns({
-    @JoinColumn(name = "callee_type_id", referencedColumnName = "type_id"),
-    @JoinColumn(name = "callee_seq_no", referencedColumnName = "seq_no")
+    @JoinColumn(name = "type_id", referencedColumnName = "type_id"),
+    @JoinColumn(name = "method_seq_no", referencedColumnName = "seq_no")
   })
   private MethodEntity method;
 }

@@ -13,7 +13,6 @@ public class SourceFileService {
   private final EntityManager em;
   private final CrudPointRepository crudPointRepository;
   private final FieldRepository fieldRepository;
-  private final MethodCallRepository methodCallRepository;
   private final MethodParamRepository methodParamRepository;
 
   @Transactional
@@ -44,13 +43,28 @@ public class SourceFileService {
 
     methodParamRepository.saveAll(method.getMethodParams());
 
-    methodCallRepository.saveAll(
-        method.getMethodCalls().stream()
-            .sorted(Comparator.comparing(mc -> mc.getId().getSeqNo()))
-            .toList());
+    method.getMethodCalls().stream()
+        .sorted(Comparator.comparing(mc -> mc.getId().getSeqNo()))
+        .forEach(
+            mc -> {
+              saveDeclaration(mc.getFlowStatement());
+              em.persist(mc);
+            });
 
     crudPointRepository.saveAll(method.getCrudPoints());
 
+    return 1;
+  }
+
+  public int saveDeclaration(FlowStatementEntity flowStatement) {
+    if (flowStatement == null) {
+      return 0;
+    }
+
+    if (flowStatement.getFlowStatement() != null) {
+      saveDeclaration(flowStatement.getFlowStatement());
+    }
+    em.persist(flowStatement);
     return 1;
   }
 }

@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import javax.annotation.processing.Generated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,7 +46,7 @@ public class CodebaseEntity extends dev.aulait.amv.arch.jpa.BaseEntity
   private String branch;
 
   @Column(name = "analyzed_at")
-  private LocalDateTime analyzedAt;
+  private java.time.LocalDateTime analyzedAt;
 
   @Column(name = "analyzed_in")
   private Long analyzedIn;

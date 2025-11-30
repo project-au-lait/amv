@@ -11,9 +11,11 @@ import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.MethodReferenceExpr;
+import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import dev.aulait.amv.domain.extractor.fdo.AnnotationFdo;
 import dev.aulait.amv.domain.extractor.fdo.FieldFdo;
+import dev.aulait.amv.domain.extractor.fdo.FlowStatementFdo;
 import dev.aulait.amv.domain.extractor.fdo.InheritedTypeFdo;
 import dev.aulait.amv.domain.extractor.fdo.MethodCallFdo;
 import dev.aulait.amv.domain.extractor.fdo.MethodFdo;
@@ -157,6 +159,14 @@ public class MetadataConverter {
       fdo.setFallbackSignature(JavaParserUtils.fallbackMethodRefSig(expr));
     }
 
+    return fdo;
+  }
+
+  public FlowStatementFdo convert(IfStmt n) {
+    FlowStatementFdo fdo = new FlowStatementFdo();
+    n.getBegin().ifPresent(p -> fdo.setLineNo(p.line));
+    fdo.setKind("1");
+    fdo.setContent(n.getCondition().toString());
     return fdo;
   }
 }

@@ -16,4 +16,5 @@ public class MethodCallFdo {
   private List<String> argumentTypes = new ArrayList<>();
   @EqualsAndHashCode.Include private String id;
   private String callerId;
+  private FlowStatementFdo flowStatement;
 }

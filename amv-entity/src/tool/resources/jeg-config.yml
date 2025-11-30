@@ -11,6 +11,7 @@ packages:
     - method_param
     - method_call
     - field
+    - flow_statement
     - entry_point
     - crud_point
 baseClassDefs:

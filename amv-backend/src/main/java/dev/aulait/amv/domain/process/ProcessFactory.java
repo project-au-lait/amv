@@ -5,6 +5,7 @@ import dev.aulait.amv.arch.util.ShortUuidUtils;
 import dev.aulait.amv.domain.extractor.fdo.CrudPointFdo;
 import dev.aulait.amv.domain.extractor.fdo.EntryPointFdo;
 import dev.aulait.amv.domain.extractor.fdo.FieldFdo;
+import dev.aulait.amv.domain.extractor.fdo.FlowStatementFdo;
 import dev.aulait.amv.domain.extractor.fdo.MethodCallFdo;
 import dev.aulait.amv.domain.extractor.fdo.MethodFdo;
 import dev.aulait.amv.domain.extractor.fdo.ParameterFdo;
@@ -130,6 +131,10 @@ public class ProcessFactory {
               methodE.getMethodCalls().size() + 1);
       methodE.getMethodCalls().add(methodCallE);
 
+      if (methodCallE.getFlowStatement() != null) {
+        methodCallE.getFlowStatement().setMethod(methodE);
+      }
+
       fdo2entity.put(methodCallF, methodCallE);
       id2entity.put(methodCallF.getId(), methodCallE);
     }
@@ -193,6 +198,25 @@ public class ProcessFactory {
     entity.setUnsolvedReason(fdo.getUnsolvedReason());
     entity.setLineNo(fdo.getLineNo());
     entity.setArgumentTypes(fdo.getArgumentTypes().stream().collect(Collectors.joining(",")));
+
+    if (fdo.getFlowStatement() != null) {
+      entity.setFlowStatement(f2e(fdo.getFlowStatement()));
+    }
+
+    return entity;
+  }
+
+  FlowStatementEntity f2e(FlowStatementFdo fdo) {
+    FlowStatementEntity entity = new FlowStatementEntity();
+    entity.setId(ShortUuidUtils.generate());
+    entity.setKind(fdo.getKind());
+    entity.setContent(fdo.getContent());
+    entity.setLineNo(fdo.getLineNo());
+
+    if (fdo.getParent() != null) {
+      FlowStatementEntity parent = f2e(fdo.getParent());
+      entity.setFlowStatement(parent);
+    }
 
     return entity;
   }

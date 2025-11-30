@@ -1,5 +1,6 @@
 package dev.aulait.amv.domain.extractor.java;
 
+import dev.aulait.amv.domain.extractor.fdo.FlowStatementFdo;
 import dev.aulait.amv.domain.extractor.fdo.MethodCallFdo;
 import dev.aulait.amv.domain.extractor.fdo.MethodFdo;
 import dev.aulait.amv.domain.extractor.fdo.TypeFdo;
@@ -19,6 +20,8 @@ public class AmvVisitorContext {
   private Deque<MethodFdo> methodStack = new ArrayDeque<>();
 
   private Deque<MethodCallFdo> methodCallStack = new ArrayDeque<>();
+
+  private Deque<FlowStatementFdo> flowStatementStack = new ArrayDeque<>();
 
   public void pushType(TypeFdo type) {
     typeStack.push(type);
@@ -55,5 +58,17 @@ public class AmvVisitorContext {
 
   public MethodCallFdo getCurrentMethodCall() {
     return methodCallStack.peek();
+  }
+
+  public void pushFlowStatement(FlowStatementFdo flowStatement) {
+    flowStatementStack.push(flowStatement);
+  }
+
+  public void popFlowStatement() {
+    flowStatementStack.pop();
+  }
+
+  public FlowStatementFdo getCurrentFlowStatement() {
+    return flowStatementStack.peek();
   }
 }
