@@ -8,29 +8,29 @@ export const load: PageLoad = async ({ fetch, url }) => {
     ...CriteriaUtils.decode(url)
   } as TypeSearchCriteriaModel;
 
-  // #14629:BEGIN
-  // 初期起動時は空とする
+  const fromLink = url.searchParams.get('fromLink') === '1';
+
   let result: TypeSearchResultModel = { list: [] };
   let classDiagram = '';
 
-  // テキスト入力値を取得
   const hasCriteria = criteria.text && criteria.text.trim().length >= 2;
 
-  // criteriaが2文字以上入力時のみ検索処理を実行する
   if (hasCriteria) {
     result = (await ApiHandler.handle<TypeSearchResultModel>(fetch, (api) =>
       api.type.search(criteria)
     )) || { list: [] };
-    if (result.list && result.list.length === 1) {
+
+    if ((result.list && result.list.length === 1) || fromLink) {
+      const target = fromLink && criteria.text ? criteria.text : result.list![0].qualifiedName!;
+
       classDiagram =
         (await ApiHandler.handle<string>(fetch, (api) =>
           api.diagrams.classDiagram({
-            qualifiedName: result!.list![0].qualifiedName!
+            qualifiedName: target
           })
         )) || '';
     }
   }
-  // #14629:END
 
   return {
     criteria,

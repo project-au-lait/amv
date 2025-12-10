@@ -4,11 +4,9 @@
   import CriteriaUtils from '$lib/arch/search/CriteriaUtils';
 
   let { data }: PageProps = $props();
-  // #14629:BEGIN
   let { criteria: _criteria } = $derived(data);
   // svelte-ignore state_referenced_locally
   let criteria = $state(_criteria);
-  // #14629:END
   let { result } = $derived(data);
   let { classDiagram } = $derived(data);
   let canvas: HTMLDivElement;
@@ -19,7 +17,7 @@
   }
 
   function url(qualifiedSignature: string) {
-    return CriteriaUtils.encode({ text: qualifiedSignature });
+    return CriteriaUtils.encode({ text: qualifiedSignature }, { fromLink: 1 });
   }
 
   $effect(() => {
@@ -36,7 +34,6 @@
 </section>
 
 <section>
-  <!--#14629:BEGIN-->
   {#if criteria.text && result.list && result.list!.length > 0}
     {@const andMoreCount = result.pageResult!.count! - result.list.length}
     <ul>
@@ -52,7 +49,6 @@
       {/if}
     </ul>
   {/if}
-  <!--#14629:END-->
 </section>
 
 <div id="canvas" style="--val:{scaleValue}" bind:this={canvas}></div>
