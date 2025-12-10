@@ -4,7 +4,11 @@
   import CriteriaUtils from '$lib/arch/search/CriteriaUtils';
 
   let { data }: PageProps = $props();
-  let { criteria } = $state(data);
+  // #14629:BEGIN
+  let { criteria: _criteria } = $derived(data);
+  // svelte-ignore state_referenced_locally
+  let criteria = $state(_criteria);
+  // #14629:END
   let { result } = $derived(data);
   let { classDiagram } = $derived(data);
   let canvas: HTMLDivElement;
@@ -32,13 +36,24 @@
 </section>
 
 <section>
-  {#each result.list as type}
-    <div>
-      <a href={url(type.qualifiedName!)}>{type.qualifiedName}</a>
-    </div>
-  {/each}
+  <!--#14629:BEGIN-->
+  {#if criteria.text && result.list && result.list!.length > 0}
+    {@const andMoreCount = result.pageResult!.count! - result.list.length}
+    <ul>
+      {#each result.list as type}
+        <div>
+          <a href={url(type.qualifiedName!)}>{type.qualifiedName}</a>
+        </div>
+      {/each}
+      {#if andMoreCount > 0}
+        <div>
+          ...and {andMoreCount} more
+        </div>
+      {/if}
+    </ul>
+  {/if}
+  <!--#14629:END-->
 </section>
-
 
 <div id="canvas" style="--val:{scaleValue}" bind:this={canvas}></div>
 
