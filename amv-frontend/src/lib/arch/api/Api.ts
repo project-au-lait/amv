@@ -18,6 +18,11 @@ export interface CallTreeCriteriaModel {
   limit?: number;
 }
 
+export interface CallTreeResponseModel {
+  count: number;
+  results: CallTreeModel[];
+}
+
 export interface CallTreeModel {
   method: MethodModel;
   callTree: CallTreeElementModel[];
@@ -658,7 +663,7 @@ export class Api<
      * @request POST:/api/diagrams/call-tree
      */
     callTree: (data: CallTreeCriteriaModel, params: RequestParams = {}) =>
-      this.request<CallTreeModel[], void>({
+      this.request<CallTreeResponseModel, void>({
         path: `/api/diagrams/call-tree`,
         method: "POST",
         body: data,

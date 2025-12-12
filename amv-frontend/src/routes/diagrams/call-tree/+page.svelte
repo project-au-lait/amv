@@ -42,7 +42,7 @@
   <input id="search" type="search" bind:value={signaturePattern} autofocus />
 </section>
 
-{#if callTrees.length > 0}
+{#if callTrees.results.length > 0}
   <section>
     <article>
       The font of each element in the Call Tree has the following meanings:
@@ -52,8 +52,7 @@
       </div>
       <div>
         <span class="data">Call</span>
-        <span>: Class that holds data such as a Dto, an Entity or their Builder ("Data Class")</span
-        >
+        <span>: Class that holds data such as a Dto, an Entity or their Builder ("Data Class")</span>
       </div>
       <div>
         <span class="setter">Call</span>
@@ -67,7 +66,7 @@
   </section>
 {/if}
 
-{#each callTrees as callTree}
+{#each callTrees.results as callTree}
   {@const method = callTree.method}
 
   <section class="container-fluid setting">
@@ -82,11 +81,7 @@
       width="4rem"
       bind:value={packageLevel}
     />
-    <CheckBox
-      id="show-external-package"
-      label="Show External Package Methods"
-      bind:checked={showExternalPackage}
-    />
+    <CheckBox id="show-external-package" label="Show External Package Methods" bind:checked={showExternalPackage} />
   </section>
 
   <section class="container-fluid">
@@ -123,16 +118,12 @@
         {element.call ? '-> ' : '<- '}
       {/if}
 
-      <span
-        class={`${
-          isInternalPackage(element, packageLevel) ? 'internal ' : ''
-        }${element.elementTags.join(' ')}`}
-      >
+      <span class={`${isInternalPackage(element, packageLevel) ? 'internal ' : ''}${element.elementTags.join(' ')}`}>
         {#if method.dummy}
           <span>{method.name}</span>
         {:else}
-          <span class={element.typeTags.join(' ')}>{method.type}</span>.<span
-            class={element.methodTags.join(' ')}>{method.simpleSignature}</span
+          <span class={element.typeTags.join(' ')}>{method.type}</span>.<span class={element.methodTags.join(' ')}
+            >{method.simpleSignature}</span
           >
         {/if}
       </span>
@@ -170,6 +161,12 @@
     </div>
   {/if}
 {/snippet}
+{#if callTrees.count > 0 && callTrees.count > callTrees.results.length}
+  {@const andMoreCount = callTrees.count - callTrees.results.length}
+  <div>
+    ...and {andMoreCount} more
+  </div>
+{/if}
 
 <style lang="scss">
   .internal {

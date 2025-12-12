@@ -37,7 +37,7 @@ public class DiagramController {
 
   @POST
   @Path(CALL_TREE_PATH)
-  public List<CallTreeDto> callTree(CallTreeCriteriaDto criteria) {
+  public CallTreeResponseDto callTree(CallTreeCriteriaDto criteria) {
     List<CallTreeVo> callTrees =
         callTreeService.buildCallTree(
             criteria.getSignaturePattern(),
@@ -45,11 +45,13 @@ public class DiagramController {
             criteria.isCalledTreeRequired(),
             criteria.getLimit());
 
+    int total = callTreeService.countCallTree(criteria.getSignaturePattern());
+
     Set<String> typeIds =
         callTrees.stream().flatMap(ct -> ct.collectTypeIds().stream()).collect(Collectors.toSet());
     Map<String, String> typeId2url = methodService.resolveUrl(typeIds);
 
-    return callTreeFactory.build(callTrees, typeId2url);
+    return new CallTreeResponseDto(callTreeFactory.build(callTrees, typeId2url), total);
   }
 
   @GET
