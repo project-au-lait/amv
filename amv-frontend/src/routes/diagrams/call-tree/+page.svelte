@@ -118,7 +118,7 @@
         {element.call ? '-> ' : '<- '}
       {/if}
 
-      <span class={`${isInternalPackage(element, packageLevel) ? "internal " : ""}${element.elementTags.join(" ")}`}>
+      <span class={`${isInternalPackage(element, packageLevel) ? 'internal ' : ''}${element.elementTags.join(' ')}`}>
         {#if method.dummy}
           <span>{method.name}</span>
         {:else}
