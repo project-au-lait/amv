@@ -17,8 +17,4 @@ public class BookService {
   public void saveAndFlush(BookEntity book) {
     repository.saveAndFlush(book);
   }
-
-  public void findById(Integer id) {
-    repository.findById(id);
-  }
 }
