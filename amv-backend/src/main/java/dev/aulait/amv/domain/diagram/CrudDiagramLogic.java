@@ -57,11 +57,6 @@ public class CrudDiagramLogic {
           "Max depth exceeded: {}:{}", calledMethod.getId(), calledMethod.getQualifiedSignature());
       return;
     }
-    if (calledMethod
-        .getQualifiedSignature()
-        .equals("dev.aulait.amv.interfaces.process.TypeController.get(java.lang.String)")) {
-      System.out.println("test");
-    }
 
     if (calledMethod.getCrudPoints() != null) {
       calledMethod.getCrudPoints().stream()
