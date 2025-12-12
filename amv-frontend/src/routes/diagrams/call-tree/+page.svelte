@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import type { CallTreeCriteriaModel, CallTreeElementModel } from "$lib/arch/api/Api";
-  import CheckBox from "$lib/arch/form/CheckBox.svelte";
-  import CriteriaUtils from "$lib/arch/search/CriteriaUtils";
-  import { ScrollText, Search } from "@lucide/svelte";
-  import type { PageProps } from "./$types";
-  import ToCallTree from "$lib/domain/diagrams/ToCallTree.svelte";
-  import InputField from "$lib/arch/form/InputField.svelte";
+  import { goto } from '$app/navigation';
+  import type { CallTreeCriteriaModel, CallTreeElementModel } from '$lib/arch/api/Api';
+  import CheckBox from '$lib/arch/form/CheckBox.svelte';
+  import CriteriaUtils from '$lib/arch/search/CriteriaUtils';
+  import { ScrollText, Search } from '@lucide/svelte';
+  import type { PageProps } from './$types';
+  import ToCallTree from '$lib/domain/diagrams/ToCallTree.svelte';
+  import InputField from '$lib/arch/form/InputField.svelte';
 
   let { data }: PageProps = $props();
   let { callTrees } = $derived(data);
@@ -30,8 +30,8 @@
 
   function isInternalPackage(element: CallTreeElementModel, level: number): boolean {
     return element.elementTags.some((tag) => {
-      if (!tag.startsWith("same-package-")) return false;
-      const n = parseInt(tag.split("-")[2]);
+      if (!tag.startsWith('same-package-')) return false;
+      const n = parseInt(tag.split('-')[2]);
       return n >= level;
     });
   }
@@ -115,14 +115,14 @@
   {#if showExternalPackage || isInternalPackage(element, packageLevel)}
     <div style="margin-left: {element.depth}rem">
       {#if element.depth > 0}
-        {element.call ? "-> " : "<- "}
+        {element.call ? '-> ' : '<- '}
       {/if}
 
       <span class={`${isInternalPackage(element, packageLevel) ? "internal " : ""}${element.elementTags.join(" ")}`}>
         {#if method.dummy}
           <span>{method.name}</span>
         {:else}
-          <span class={element.typeTags.join(" ")}>{method.type}</span>.<span class={element.methodTags.join(" ")}
+          <span class={element.typeTags.join(' ')}>{method.type}</span>.<span class={element.methodTags.join(' ')}
             >{method.simpleSignature}</span
           >
         {/if}
