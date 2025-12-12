@@ -9,8 +9,6 @@ import dev.aulait.amv.domain.extractor.fdo.TypeFdo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class SpringDataJpaAdjuster implements MetadataAdjuster {
@@ -131,24 +129,18 @@ public class SpringDataJpaAdjuster implements MetadataAdjuster {
         && StringUtils.equalsAny(
             ownerType.get(),
             "org.springframework.data.repository.CrudRepository",
-            "org.springframework.data.repository.ListCrudRepository",
             "org.springframework.data.jpa.repository.JpaRepository")) {
 
       String type = expr.getScope().get().calculateResolvedType().describe();
       String method = expr.getNameAsString();
-      String args =
-          expr.getArguments().stream()
-              .map(JavaParserUtils::resolveType)
-              .map(this::generalizeType)
-              .collect(Collectors.joining(", "));
+
+      if (!StringUtils.equalsAny(method, "save", "saveAndFlush")) {
+        return;
+      }
 
       fdo.setFallbackSignature(fdo.getQualifiedSignature());
-      fdo.setQualifiedSignature(type + "." + method + "(" + args + ")");
-    }
-  }
 
-  String generalizeType(String typeStr) {
-    return RegExUtils.replaceAll(
-        typeStr, "java.util.Set|java.util.List|java.util.Collection", "java.lang.Iterable");
+      fdo.setQualifiedSignature(type + "." + method + "(java.lang.Object)");
+    }
   }
 }

@@ -14,6 +14,8 @@ public class SourceFileService {
   private final CrudPointRepository crudPointRepository;
   private final FieldRepository fieldRepository;
   private final MethodParamRepository methodParamRepository;
+  private static final Comparator<MethodCallEntity> BY_SEQ_NO =
+      Comparator.comparing(mc -> mc.getId().getSeqNo());
 
   @Transactional
   public void save(SourceFileAggregate sourceFile) {
@@ -43,17 +45,16 @@ public class SourceFileService {
 
     methodParamRepository.saveAll(method.getMethodParams());
 
-    method.getMethodCalls().stream()
-        .sorted(Comparator.comparing(mc -> mc.getId().getSeqNo()))
-        .forEach(
-            mc -> {
-              saveDeclaration(mc.getFlowStatement());
-              em.persist(mc);
-            });
+    method.getMethodCalls().stream().sorted(BY_SEQ_NO).forEach(this::processMethodCall);
 
     crudPointRepository.saveAll(method.getCrudPoints());
 
     return 1;
+  }
+
+  private void processMethodCall(MethodCallEntity mc) {
+    saveDeclaration(mc.getFlowStatement());
+    em.persist(mc);
   }
 
   public int saveDeclaration(FlowStatementEntity flowStatement) {

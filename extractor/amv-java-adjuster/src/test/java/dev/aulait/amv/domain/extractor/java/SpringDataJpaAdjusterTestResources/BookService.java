@@ -9,4 +9,16 @@ public class BookService {
   public void saveAll(Set<BookEntity> books) {
     repository.saveAll(books);
   }
+
+  public void save(BookEntity book) {
+    repository.save(book);
+  }
+
+  public void saveAndFlush(BookEntity book) {
+    repository.saveAndFlush(book);
+  }
+
+  public void findById(Integer id) {
+    repository.findById(id);
+  }
 }
