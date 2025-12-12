@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import type { CallTreeCriteriaModel, CallTreeElementModel } from '$lib/arch/api/Api';
-  import CheckBox from '$lib/arch/form/CheckBox.svelte';
-  import CriteriaUtils from '$lib/arch/search/CriteriaUtils';
-  import { ScrollText, Search } from '@lucide/svelte';
-  import type { PageProps } from './$types';
-  import ToCallTree from '$lib/domain/diagrams/ToCallTree.svelte';
-  import InputField from '$lib/arch/form/InputField.svelte';
+  import { goto } from "$app/navigation";
+  import type { CallTreeCriteriaModel, CallTreeElementModel } from "$lib/arch/api/Api";
+  import CheckBox from "$lib/arch/form/CheckBox.svelte";
+  import CriteriaUtils from "$lib/arch/search/CriteriaUtils";
+  import { ScrollText, Search } from "@lucide/svelte";
+  import type { PageProps } from "./$types";
+  import ToCallTree from "$lib/domain/diagrams/ToCallTree.svelte";
+  import InputField from "$lib/arch/form/InputField.svelte";
 
   let { data }: PageProps = $props();
   let { callTrees } = $derived(data);
@@ -30,8 +30,8 @@
 
   function isInternalPackage(element: CallTreeElementModel, level: number): boolean {
     return element.elementTags.some((tag) => {
-      if (!tag.startsWith('same-package-')) return false;
-      const n = parseInt(tag.split('-')[2]);
+      if (!tag.startsWith("same-package-")) return false;
+      const n = parseInt(tag.split("-")[2]);
       return n >= level;
     });
   }
@@ -42,7 +42,7 @@
   <input id="search" type="search" bind:value={signaturePattern} autofocus />
 </section>
 
-{#if callTrees.length > 0}
+{#if callTrees.results.length > 0}
   <section>
     <article>
       The font of each element in the Call Tree has the following meanings:
@@ -52,8 +52,7 @@
       </div>
       <div>
         <span class="data">Call</span>
-        <span>: Class that holds data such as a Dto, an Entity or their Builder ("Data Class")</span
-        >
+        <span>: Class that holds data such as a Dto, an Entity or their Builder ("Data Class")</span>
       </div>
       <div>
         <span class="setter">Call</span>
@@ -67,7 +66,7 @@
   </section>
 {/if}
 
-{#each callTrees as callTree}
+{#each callTrees.results as callTree}
   {@const method = callTree.method}
 
   <section class="container-fluid setting">
@@ -82,11 +81,7 @@
       width="4rem"
       bind:value={packageLevel}
     />
-    <CheckBox
-      id="show-external-package"
-      label="Show External Package Methods"
-      bind:checked={showExternalPackage}
-    />
+    <CheckBox id="show-external-package" label="Show External Package Methods" bind:checked={showExternalPackage} />
   </section>
 
   <section class="container-fluid">
@@ -120,19 +115,15 @@
   {#if showExternalPackage || isInternalPackage(element, packageLevel)}
     <div style="margin-left: {element.depth}rem">
       {#if element.depth > 0}
-        {element.call ? '-> ' : '<- '}
+        {element.call ? "-> " : "<- "}
       {/if}
 
-      <span
-        class={`${
-          isInternalPackage(element, packageLevel) ? 'internal ' : ''
-        }${element.elementTags.join(' ')}`}
-      >
+      <span class={`${isInternalPackage(element, packageLevel) ? "internal " : ""}${element.elementTags.join(" ")}`}>
         {#if method.dummy}
           <span>{method.name}</span>
         {:else}
-          <span class={element.typeTags.join(' ')}>{method.type}</span>.<span
-            class={element.methodTags.join(' ')}>{method.simpleSignature}</span
+          <span class={element.typeTags.join(" ")}>{method.type}</span>.<span class={element.methodTags.join(" ")}
+            >{method.simpleSignature}</span
           >
         {/if}
       </span>
@@ -170,6 +161,12 @@
     </div>
   {/if}
 {/snippet}
+{#if callTrees.count > 0 && callTrees.count > callTrees.results.length}
+  {@const andMoreCount = callTrees.count - callTrees.results.length}
+  <div>
+    ...and {andMoreCount} more
+  </div>
+{/if}
 
 <style lang="scss">
   .internal {

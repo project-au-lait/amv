@@ -40,4 +40,9 @@ public class CallTreeService {
 
     return callTrees;
   }
+
+  public int countCallTree(String signaturePattern) {
+    return Math.toIntExact(
+        methodRepository.countByQualifiedSignatureLike("%" + signaturePattern + "%"));
+  }
 }

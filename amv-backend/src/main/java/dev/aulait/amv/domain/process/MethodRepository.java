@@ -14,6 +14,8 @@ public interface MethodRepository extends JpaRepository<MethodEntity, MethodEnti
 
   List<MethodEntity> findByQualifiedSignatureLike(String signaturePattern, Pageable pageable);
 
+  long countByQualifiedSignatureLike(String signaturePattern);
+
   @Query(
       "SELECT m AS method, mc AS methodCall FROM MethodEntity m JOIN FETCH m.methodCalls mc WHERE"
           + " mc.method.id = :calleeId")

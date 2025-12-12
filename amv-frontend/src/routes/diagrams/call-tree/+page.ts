@@ -1,25 +1,35 @@
-import type { CallTreeCriteriaModel, CallTreeModel } from '$lib/arch/api/Api';
-import ApiHandler from '$lib/arch/api/ApiHandler';
-import CriteriaUtils from '$lib/arch/search/CriteriaUtils';
-import type { PageLoad } from './$types';
+import type { CallTreeCriteriaModel, CallTreeResponseModel } from "$lib/arch/api/Api";
+import ApiHandler from "$lib/arch/api/ApiHandler";
+import CriteriaUtils from "$lib/arch/search/CriteriaUtils";
+import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async ({ fetch, url }) => {
   const criteria = {
     callTreeRequired: true,
     calledTreeRequired: true,
-    render: 'HTML',
-    limit: 5,
+    render: "HTML",
+    limit: 10,
     ...CriteriaUtils.decode(url)
   } as CallTreeCriteriaModel;
 
-  const open = CriteriaUtils.decodeParam<boolean>(url, 'open') ?? false;
+  const open = CriteriaUtils.decodeParam<boolean>(url, "open") ?? false;
 
-  const callTrees =
-    (await ApiHandler.handle<CallTreeModel[]>(fetch, (api) => api.diagrams.callTree(criteria))) ||
-    [];
+  let callTrees: CallTreeResponseModel = {
+    count: 0,
+    results: []
+  };
+
+  const hasCriteria = criteria.signaturePattern && criteria.signaturePattern.trim().length >= 2;
+
+  if (hasCriteria) {
+    callTrees = (await ApiHandler.handle<CallTreeResponseModel>(fetch, (api) => api.diagrams.callTree(criteria))) ?? {
+      count: 0,
+      results: []
+    };
+  }
 
   return {
-    title: 'Call Tree',
+    title: "Call Tree",
     criteria,
     open,
     callTrees,
