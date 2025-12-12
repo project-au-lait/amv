@@ -89,7 +89,7 @@ public class AmvVisitor extends VoidVisitorAdapter<AmvVisitorContext> {
     super.visit(n, context);
     context.popMethodCall();
 
-    // adjusters.forEach(adjuster -> adjuster.adjust(n, methodCall));
+    adjusters.forEach(adjuster -> adjuster.adjust(n, methodCall));
   }
 
   @Override
