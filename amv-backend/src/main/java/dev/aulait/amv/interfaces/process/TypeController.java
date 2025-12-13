@@ -1,6 +1,7 @@
 package dev.aulait.amv.interfaces.process;
 
 import dev.aulait.amv.arch.util.BeanUtils;
+import dev.aulait.amv.domain.process.MethodService;
 import dev.aulait.amv.domain.process.TypeEntity;
 import dev.aulait.amv.domain.process.TypeService;
 import dev.aulait.sqb.SearchCriteria;
@@ -12,6 +13,9 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -22,6 +26,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameters;
 public class TypeController {
 
   private final TypeService typeService;
+  private final MethodService methodService;
   private final TypeFactory typeFactory;
 
   static final String TYPE_PATH = "type";
@@ -35,7 +40,15 @@ public class TypeController {
   public TypeDto get(@PathParam("idOrQualifiedName") String idOrQualifiedName) {
     TypeEntity entity = typeService.find(idOrQualifiedName);
 
-    return typeFactory.build(entity);
+    Set<String> typeIds =
+        entity
+            .getMethods()
+            .stream()
+            .map(method -> method.getId().getTypeId())
+            .collect(Collectors.toSet());
+    Map<String, String> typeId2url = methodService.resolveUrl(typeIds);
+
+    return typeFactory.build(entity, typeId2url);
   }
 
   @POST

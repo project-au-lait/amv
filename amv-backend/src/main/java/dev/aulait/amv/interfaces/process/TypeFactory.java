@@ -12,6 +12,7 @@ import dev.aulait.sqb.SearchCriteria;
 import dev.aulait.sqb.SearchCriteriaBuilder;
 import dev.aulait.sqb.SearchResult;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
 @ApplicationScoped
@@ -22,6 +23,22 @@ public class TypeFactory {
 
   private MappingConfig<TypeEntity, TypeDto> searchResultConfig =
       BeanUtils.buildConfig(TypeEntity.class, TypeDto.class).build();
+
+  public TypeDto build(TypeEntity entity, Map<String, String> typeId2url) {
+    TypeDto dto = BeanUtils.map(entity, TypeDto.class);
+
+    dto.setMethods(
+        entity.getMethods().stream()
+            .map(methodFactory::build)
+            .map(
+                method -> {
+                  method.setSrcUrl(
+                      typeId2url.get(method.getId().getTypeId()) + "#L" + method.getLineNo());
+                  return method;
+                })
+            .toList());
+    return dto;
+  }
 
   public TypeDto build(TypeEntity entity) {
     // TODO: optimize to call one time BeanUtils.map
