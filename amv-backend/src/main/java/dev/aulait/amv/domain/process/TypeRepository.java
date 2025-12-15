@@ -12,6 +12,8 @@ public interface TypeRepository extends JpaRepository<TypeEntity, String> {
 
   Optional<TypeEntity> findByQualifiedName(String qualifiedName);
 
+  List<TypeEntity> findByDataKind(String dataKind);
+
   List<TypeEntity> findByQualifiedNameIn(Collection<String> qualifiedNames);
 
   Optional<TypeEntity> findByIdOrQualifiedName(String id, String qualifiedName);

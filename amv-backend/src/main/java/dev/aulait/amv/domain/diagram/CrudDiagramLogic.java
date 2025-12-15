@@ -28,10 +28,21 @@ public class CrudDiagramLogic {
       List<CrudPointEntity> crudPoints = new ArrayList<>();
       collectCrud(null, method, crudPoints, 0);
 
+      if (crudPoints.isEmpty()) {
+        diagram.add(
+            CrudElementVo.builder()
+                .qualifiedSignature(method.getQualifiedSignature())
+                .method(method)
+                .table("")
+                .crud("")
+                .build());
+        continue;
+      }
+
       for (CrudPointEntity crudPoint : crudPoints) {
         CrudElementVo element =
             CrudElementVo.builder()
-                .entryPoint(method.getEntryPoint().getPath())
+                .qualifiedSignature(method.getQualifiedSignature())
                 .method(method)
                 .table(Objects.toString(crudPoint.getDataName(), crudPoint.getType()))
                 .crud(crudPoint.getCrud())

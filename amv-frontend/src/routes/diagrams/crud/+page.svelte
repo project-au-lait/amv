@@ -4,6 +4,18 @@
 
   let { data }: PageProps = $props();
   let { crud } = $derived(data);
+  let hoveredRow: number | null = $state(null);
+  let hoveredCol: number | null = $state(null);
+
+  function handleCellHover(row: number, col: number) {
+    hoveredRow = row;
+    hoveredCol = col;
+  }
+
+  function clearHover() {
+    hoveredRow = null;
+    hoveredCol = null;
+  }
 </script>
 
 <section class="table-wrap">
@@ -14,31 +26,43 @@
         <col />
       {/each}
     </colgroup>
+
     <thead>
       <tr>
         <th class="corner"></th>
-        {#each crud.tables as table}
-          <th scope="col"><span title={table}>{table}</span></th>
+        {#each crud.tables as table, col}
+          <th scope="col" class:hovered-col={col === hoveredCol}>
+            <span title={table}>{table}</span>
+          </th>
         {/each}
       </tr>
     </thead>
+
     <tbody>
-      {#each crud.entryPoints as entryPoint}
+      {#each crud.entryPoints as entryPoint, row}
         {@const method = crud.methods[entryPoint]}
+
         <tr>
-          <th scope="row" class="align-left row-head">
-            <!-- <sub></sub><br /> -->
-            <!-- <a href={method.srcUrl} title={entryPoint}>
-              {method.type}.{method.simpleSignature}
-            </a> -->
-            <a href={`/types/${method.namespace}.${method.type}#${method.simpleSignature}`} title={entryPoint}>
+          <th scope="row" class="align-left row-head" class:hovered-row={row === hoveredRow}>
+            <a
+              href={`/types/${method.namespace}.${method.type}#${method.simpleSignature}`}
+              title={entryPoint}
+            >
               {method.type}.{method.simpleSignature}
             </a>
 
             <ToCallTree signaturePattern={method.qualifiedSignature} />
           </th>
-          {#each crud.tables as table}
-            <td>{crud.crud[entryPoint]?.[table]}</td>
+
+          {#each crud.tables as table, col}
+            <td
+              onmouseenter={() => handleCellHover(row, col)}
+              onmouseleave={clearHover}
+              class:hovered-row={row === hoveredRow}
+              class:hovered-col={col === hoveredCol}
+            >
+              {crud.crud[entryPoint]?.[table]}
+            </td>
           {/each}
         </tr>
       {/each}
@@ -67,9 +91,7 @@
     thead th {
       position: sticky;
       top: 0;
-      background: #fff; /* must have a bg */
       z-index: 3; /* above body cells */
-      box-shadow: 0 1px 0 #eaeaea; /* visual separation */
       height: 8rem;
       padding: 0 0 1rem 0;
       writing-mode: sideways-lr;
@@ -84,12 +106,10 @@
     .row-head {
       position: sticky;
       left: 0;
-      background: #fff;
       z-index: 2; /* below the header row but above cells */
-      box-shadow: 1px 0 0 #eaeaea;
       text-align: left;
       white-space: normal;
-      word-break: break-all; 
+      word-break: break-all;
     }
 
     .corner {
@@ -98,5 +118,22 @@
       left: 0;
       z-index: 4; /* highest so it sits above both */
     }
+  }
+
+  /* light mode */
+  :root {
+    --hover-color: var(--pico-color-grey-50);
+  }
+
+  /* dark mode */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --hover-color: var(--pico-color-zinc-800);
+    }
+  }
+
+  .hovered-row,
+  .hovered-col {
+    background-color: var(--hover-color);
   }
 </style>

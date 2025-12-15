@@ -47,7 +47,7 @@ public class JpaAdjuster implements MetadataAdjuster {
                   "javax.persistence.Table",
                   "jakarta.persistence.Table")) {
 
-                type.setDataKind("D");
+                type.setDataKind(DataKind.D.value());
                 type.setDataName(Objects.toString(annotation.getAttributes().get("name")));
               }
             });

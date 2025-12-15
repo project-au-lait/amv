@@ -1,5 +1,6 @@
 package dev.aulait.amv.domain.diagram;
 
+import dev.aulait.amv.domain.extractor.java.DataKind;
 import dev.aulait.amv.domain.process.MethodCallRepository;
 import dev.aulait.amv.domain.process.MethodEntity;
 import dev.aulait.amv.domain.process.MethodRepository;
@@ -34,6 +35,12 @@ public class DiagramService {
 
     CrudDiagramLogic logic = new CrudDiagramLogic(typeRepository::findByQualifiedName);
     List<CrudElementVo> crudElements = logic.getCrudDiagram(methods);
+
+    List<TypeEntity> types = typeRepository.findByDataKind(DataKind.D.value());
+
+    for (TypeEntity type : types) {
+      crudElements.add(CrudElementVo.builder().table(type.getDataName()).build());
+    }
 
     return crudElements;
   }

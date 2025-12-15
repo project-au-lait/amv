@@ -7,7 +7,7 @@ import lombok.Value;
 @Builder
 @Value
 public class CrudElementVo {
-  private String entryPoint;
+  private String qualifiedSignature;
   private MethodEntity method;
   private String table;
   private String crud;

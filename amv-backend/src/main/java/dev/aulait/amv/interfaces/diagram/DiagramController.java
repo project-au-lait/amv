@@ -11,6 +11,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +61,7 @@ public class DiagramController {
     Set<String> typeIds =
         elements.stream()
             .map(CrudElementVo::getMethod)
+            .filter(Objects::nonNull)
             .map(method -> method.getId().getTypeId())
             .collect(Collectors.toSet());
     Map<String, String> typeId2url = methodService.resolveUrl(typeIds);
