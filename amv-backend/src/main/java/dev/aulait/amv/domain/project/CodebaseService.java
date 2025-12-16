@@ -10,11 +10,11 @@ import dev.aulait.amv.arch.util.ShortUuidUtils;
 import dev.aulait.sqb.SearchCriteria;
 import dev.aulait.sqb.SearchResult;
 import dev.aulait.sqb.jpa.JpaSearchQueryExecutor;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,6 +36,12 @@ public class CodebaseService {
   private final ProjectService projectService;
   private final ProjectRepository projectRepository;
 
+  @PostConstruct
+  public void init() {
+    logic.setStatusJudge(asyncService::isRunning);
+    logic.setPathJudge(projectService::isLoaded);
+  }
+
   public CodebaseEntity find(String id) {
     return findByIdAsResource(codebaseRepository, id);
   }
@@ -44,15 +50,12 @@ public class CodebaseService {
     CodebaseEntity codebase = findByIdAsResource(codebaseRepository, id);
 
     List<ProjectEntity> projects = projectService.findByCodebase(id);
-    return buildAggregate(codebase, projects);
+    return logic.buildAggregate(codebase, projects);
   }
 
   public List<CodebaseAggregate> findAllWithProjects() {
     List<ProjectEntity> projects = projectRepository.findAll();
-
-    List<CodebaseAggregate> aggregates = logic.aggregate(projects);
-    aggregates.forEach(aggregate -> aggregate.setStatus(collectStatus(aggregate.getCodebase())));
-    return aggregates;
+    return logic.aggregate(projects);
   }
 
   @Transactional
@@ -128,27 +131,5 @@ public class CodebaseService {
     CodebaseEntity codebase = find(codebaseId);
     codebase.setAnalyzedAt(LocalDateTime.now());
     codebase.setAnalyzedIn(durationMs);
-  }
-
-  private CodebaseAggregate buildAggregate(CodebaseEntity codebase, List<ProjectEntity> projects) {
-    return CodebaseAggregate.builder()
-        .codebase(codebase)
-        .projects(projects)
-        .status(collectStatus(codebase))
-        .build();
-  }
-
-  private CodebaseStatusVo collectStatus(CodebaseEntity codebase) {
-    boolean metadataExtracted =
-        Files.exists(
-            DirectoryManager.getExtractionDir(codebase.getName(), codebase.getCommitHash())
-                .resolve(".done"));
-
-    return CodebaseStatusVo.builder()
-        .analyzing(asyncService.isRunning(codebase.getId()))
-        .checkedOut(logic.exists(codebase))
-        .projectsLoaded(projectService.isLoaded(codebase))
-        .metadataExtracted(metadataExtracted)
-        .build();
   }
 }

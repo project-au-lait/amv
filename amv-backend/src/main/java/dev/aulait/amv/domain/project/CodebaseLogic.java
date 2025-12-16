@@ -3,13 +3,19 @@ package dev.aulait.amv.domain.project;
 import dev.aulait.amv.arch.file.DirectoryManager;
 import dev.aulait.amv.arch.util.GitUtils;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.Setter;
 
 @ApplicationScoped
 public class CodebaseLogic {
+
+  @Setter private Function<String, Boolean> statusJudge;
+  @Setter private Function<CodebaseEntity, Boolean> pathJudge;
 
   public Path dir(CodebaseEntity codebase) {
     return GitUtils.extractRootDir(DirectoryManager.CODEBASE_ROOT, codebase.getUrl());
@@ -30,12 +36,29 @@ public class CodebaseLogic {
             .collect(Collectors.groupingBy(ProjectEntity::getCodebase));
 
     return projectsByCodebase.entrySet().stream()
-        .map(
-            entry ->
-                CodebaseAggregate.builder()
-                    .codebase(entry.getKey())
-                    .projects(entry.getValue())
-                    .build())
+        .map(entry -> buildAggregate(entry.getKey(), entry.getValue()))
         .toList();
+  }
+
+  public CodebaseAggregate buildAggregate(CodebaseEntity codebase, List<ProjectEntity> projects) {
+    return CodebaseAggregate.builder()
+        .codebase(codebase)
+        .projects(projects)
+        .status(collectStatus(codebase))
+        .build();
+  }
+
+  private CodebaseStatusVo collectStatus(CodebaseEntity codebase) {
+    boolean metadataExtracted =
+        Files.exists(
+            DirectoryManager.getExtractionDir(codebase.getName(), codebase.getCommitHash())
+                .resolve(".done"));
+
+    return CodebaseStatusVo.builder()
+        .analyzing(statusJudge.apply(codebase.getId()))
+        .checkedOut(exists(codebase))
+        .projectsLoaded(pathJudge.apply(codebase))
+        .metadataExtracted(metadataExtracted)
+        .build();
   }
 }
