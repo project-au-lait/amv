@@ -55,24 +55,19 @@ public class DiagramService {
     SequenceDiagramLogic sequenceDiagramLogic =
         new SequenceDiagramLogic(typeRepository::findById, methodCallRepository::findByCallerId);
 
-    SequenceDiagramVo diagram =
-        sequenceDiagramLogic.generate(methodOpt.get(), participableStereotypes);
-
-    return diagram;
+    return sequenceDiagramLogic.generate(methodOpt.get(), participableStereotypes);
   }
 
-  public DiagramVo generateClassDiagram(Collection<String> qualifiedNames) {
+  public DiagramVo generateClassDiagram(Collection<String> qualifiedNames, int depth) {
     List<TypeEntity> types = typeRepository.findByQualifiedNameIn(qualifiedNames);
 
     if (types.isEmpty()) {
-      // TODO: return empty diagram string
       return DiagramVo.empty();
     }
 
     ClassDiagramLogic classDiagramLogic =
-        new ClassDiagramLogic(typeRepository::findByQualifiedName);
-    DiagramVo diagram = classDiagramLogic.generateClassDiagram(types);
+        new ClassDiagramLogic(depth, typeRepository::findByQualifiedName);
 
-    return diagram;
+    return classDiagramLogic.generateClassDiagram(types);
   }
 }

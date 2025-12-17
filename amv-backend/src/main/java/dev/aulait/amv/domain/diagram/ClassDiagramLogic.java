@@ -12,11 +12,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 @RequiredArgsConstructor
 public class ClassDiagramLogic {
 
-  private static final int MAX_RECURSION_DEPTH = 10;
+  private final int maxRecursionDepth;
 
   private final Function<String, Optional<TypeEntity>> typeFinder;
 
@@ -28,15 +29,15 @@ public class ClassDiagramLogic {
     Set<String> writtenTypes = new HashSet<>();
 
     for (TypeEntity type : types) {
-      sb.append(write(type, 0, writtenTypes));
+      sb.append(writeDiagramRecursive(type, 0, writtenTypes));
     }
 
     sb.append("@enduml");
     return new DiagramVo(sb.toString());
   }
 
-  String write(TypeEntity type, int depth, Set<String> writtenTypes) {
-    if (depth > MAX_RECURSION_DEPTH || writtenTypes.contains(type.getQualifiedName())) {
+  String writeDiagramRecursive(TypeEntity type, int depth, Set<String> writtenTypes) {
+    if (depth > maxRecursionDepth || writtenTypes.contains(type.getQualifiedName())) {
       return "";
     }
 
@@ -44,48 +45,56 @@ public class ClassDiagramLogic {
 
     StringBuilder sb = new StringBuilder();
 
-    sb.append(write(type));
+    sb.append(writeClass(type));
 
     for (var field : type.getFields()) {
-      String fieldTypeName = field.getType();
+      typeFinder
+          .apply(extractTypeName(field.getType()))
+          .ifPresent(
+              fieldType -> {
+                String childDiagram = writeDiagramRecursive(fieldType, depth + 1, writtenTypes);
+                sb.append(childDiagram);
 
-      if (StringUtils.contains(fieldTypeName, "<")) {
-        fieldTypeName = StringUtils.substringBetween(fieldTypeName, "<", ">");
-      }
-
-      Optional<TypeEntity> fieldTypeOpt = typeFinder.apply(fieldTypeName);
-
-      if (fieldTypeOpt.isPresent()) {
-        TypeEntity fieldType = fieldTypeOpt.get();
-        sb.append(write(fieldType, depth + 1, writtenTypes));
-        sb.append(type.getName()).append(" o-- ").append(fieldType.getName()).append("\n");
-      }
+                if (!childDiagram.isEmpty()) {
+                  sb.append(writeRelation(type, fieldType));
+                }
+              });
     }
     return sb.toString();
   }
 
-  String write(TypeEntity type) {
+  String writeRelation(TypeEntity parent, TypeEntity child) {
+    return parent.getName() + " o-- " + child.getName() + "\n";
+  }
+
+  String writeClass(TypeEntity type) {
     StringBuilder sb = new StringBuilder();
     sb.append("class ").append(type.getName()).append(" {\n");
 
-    sb.append(type.getFields().stream().map(this::write).collect(Collectors.joining("\n")));
+    sb.append(type.getFields().stream().map(this::writeField).collect(Collectors.joining("\n")));
 
-    sb.append(type.getMethods().stream().map(this::write).collect(Collectors.joining("\n")));
+    sb.append(type.getMethods().stream().map(this::writeMethod).collect(Collectors.joining("\n")));
 
     sb.append("\n}\n");
 
     return sb.toString();
   }
 
-  String write(FieldEntity field) {
+  String writeField(FieldEntity field) {
     return field.getName() + " : " + SyntaxUtils.toSimpleType(field.getType());
   }
 
-  String write(MethodEntity method) {
-    if (StringUtils.contains(method.getAnnotations(), "lombok.Generated")) {
+  String writeMethod(MethodEntity method) {
+    if (Strings.CS.contains(method.getAnnotations(), "lombok.Generated")) {
       return "";
     }
 
     return method.getName() + "() : " + SyntaxUtils.toSimpleType(method.getReturnType());
+  }
+
+  String extractTypeName(String rawTypeName) {
+    return Strings.CS.contains(rawTypeName, "<") && Strings.CS.contains(rawTypeName, ">")
+        ? StringUtils.substringBetween(rawTypeName, "<", ">")
+        : rawTypeName;
   }
 }

@@ -22,7 +22,9 @@ public class DocumentController {
   public InteractionResponseDto getInteractionDocument(InteractionDocumentCriteriaDto criteria) {
     InteractionDocumentVo vo =
         service.generateInteractionDocument(
-            criteria.getQualifiedSignature(), criteria.getParticipableStereotypes());
+            criteria.getQualifiedSignature(),
+            criteria.getParticipableStereotypes(),
+            criteria.getDepth());
     return BeanUtils.map(vo, InteractionResponseDto.class);
   }
 }
