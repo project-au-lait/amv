@@ -110,6 +110,7 @@ export interface FieldDtoId {
 export interface InteractionDocumentCriteriaModel {
   qualifiedSignature: string;
   participableStereotypes: string[];
+  depth: number;
 }
 
 export interface InteractionResponseModel {
@@ -249,9 +250,9 @@ export interface TypeSearchResultModel {
 }
 
 export type QueryParamsType = Record<string | number, any>;
-export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
+export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
 
-export interface FullRequestParams extends Omit<RequestInit, "body"> {
+export interface FullRequestParams extends Omit<RequestInit, 'body'> {
   /** set parameter to `true` for call `securityWorker` for this request */
   secure?: boolean;
   /** request path */
@@ -270,22 +271,18 @@ export interface FullRequestParams extends Omit<RequestInit, "body"> {
   cancelToken?: CancelToken;
 }
 
-export type RequestParams = Omit<
-  FullRequestParams,
-  "body" | "method" | "query" | "path"
->;
+export type RequestParams = Omit<FullRequestParams, 'body' | 'method' | 'query' | 'path'>;
 
 export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string;
-  baseApiParams?: Omit<RequestParams, "baseUrl" | "cancelToken" | "signal">;
+  baseApiParams?: Omit<RequestParams, 'baseUrl' | 'cancelToken' | 'signal'>;
   securityWorker?: (
     securityData: SecurityDataType | null
   ) => Promise<RequestParams | void> | RequestParams | void;
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown>
-  extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
   data: D;
   error: E;
 }
@@ -293,25 +290,24 @@ export interface HttpResponse<D extends unknown, E extends unknown = unknown>
 type CancelToken = Symbol | string | number;
 
 export enum ContentType {
-  Json = "application/json",
-  FormData = "multipart/form-data",
-  UrlEncoded = "application/x-www-form-urlencoded",
-  Text = "text/plain",
+  Json = 'application/json',
+  FormData = 'multipart/form-data',
+  UrlEncoded = 'application/x-www-form-urlencoded',
+  Text = 'text/plain'
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://localhost:8081";
+  public baseUrl: string = 'http://localhost:8081';
   private securityData: SecurityDataType | null = null;
-  private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
+  private securityWorker?: ApiConfig<SecurityDataType>['securityWorker'];
   private abortControllers = new Map<CancelToken, AbortController>();
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
-    fetch(...fetchParams);
+  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams);
 
   private baseApiParams: RequestParams = {
-    credentials: "same-origin",
+    credentials: 'same-origin',
     headers: {},
-    redirect: "follow",
-    referrerPolicy: "no-referrer",
+    redirect: 'follow',
+    referrerPolicy: 'no-referrer'
   };
 
   constructor(apiConfig: ApiConfig<SecurityDataType> = {}) {
@@ -324,7 +320,7 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected encodeQueryParam(key: string, value: any) {
     const encodedKey = encodeURIComponent(key);
-    return `${encodedKey}=${encodeURIComponent(typeof value === "number" ? value : `${value}`)}`;
+    return `${encodedKey}=${encodeURIComponent(typeof value === 'number' ? value : `${value}`)}`;
   }
 
   protected addQueryParam(query: QueryParamsType, key: string) {
@@ -333,37 +329,33 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected addArrayQueryParam(query: QueryParamsType, key: string) {
     const value = query[key];
-    return value.map((v: any) => this.encodeQueryParam(key, v)).join("&");
+    return value.map((v: any) => this.encodeQueryParam(key, v)).join('&');
   }
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    const keys = Object.keys(query).filter(
-      (key) => "undefined" !== typeof query[key]
-    );
+    const keys = Object.keys(query).filter((key) => 'undefined' !== typeof query[key]);
     return keys
       .map((key) =>
         Array.isArray(query[key])
           ? this.addArrayQueryParam(query, key)
           : this.addQueryParam(query, key)
       )
-      .join("&");
+      .join('&');
   }
 
   protected addQueryParams(rawQuery?: QueryParamsType): string {
     const queryString = this.toQueryString(rawQuery);
-    return queryString ? `?${queryString}` : "";
+    return queryString ? `?${queryString}` : '';
   }
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
     [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === "object" || typeof input === "string")
+      input !== null && (typeof input === 'object' || typeof input === 'string')
         ? JSON.stringify(input)
         : input,
     [ContentType.Text]: (input: any) =>
-      input !== null && typeof input !== "string"
-        ? JSON.stringify(input)
-        : input,
+      input !== null && typeof input !== 'string' ? JSON.stringify(input) : input,
     [ContentType.FormData]: (input: any) =>
       Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
@@ -371,19 +363,16 @@ export class HttpClient<SecurityDataType = unknown> {
           key,
           property instanceof Blob
             ? property
-            : typeof property === "object" && property !== null
+            : typeof property === 'object' && property !== null
               ? JSON.stringify(property)
               : `${property}`
         );
         return formData;
       }, new FormData()),
-    [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
+    [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input)
   };
 
-  protected mergeRequestParams(
-    params1: RequestParams,
-    params2?: RequestParams
-  ): RequestParams {
+  protected mergeRequestParams(params1: RequestParams, params2?: RequestParams): RequestParams {
     return {
       ...this.baseApiParams,
       ...params1,
@@ -391,14 +380,12 @@ export class HttpClient<SecurityDataType = unknown> {
       headers: {
         ...(this.baseApiParams.headers || {}),
         ...(params1.headers || {}),
-        ...((params2 && params2.headers) || {}),
-      },
+        ...((params2 && params2.headers) || {})
+      }
     };
   }
 
-  protected createAbortSignal = (
-    cancelToken: CancelToken
-  ): AbortSignal | undefined => {
+  protected createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken);
       if (abortController) {
@@ -433,7 +420,7 @@ export class HttpClient<SecurityDataType = unknown> {
     ...params
   }: FullRequestParams): Promise<HttpResponse<T, E>> => {
     const secureParams =
-      ((typeof secure === "boolean" ? secure : this.baseApiParams.secure) &&
+      ((typeof secure === 'boolean' ? secure : this.baseApiParams.secure) &&
         this.securityWorker &&
         (await this.securityWorker(this.securityData))) ||
       {};
@@ -443,23 +430,15 @@ export class HttpClient<SecurityDataType = unknown> {
     const responseFormat = format || requestParams.format;
 
     return this.customFetch(
-      `${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`,
+      `${baseUrl || this.baseUrl || ''}${path}${queryString ? `?${queryString}` : ''}`,
       {
         ...requestParams,
         headers: {
           ...(requestParams.headers || {}),
-          ...(type && type !== ContentType.FormData
-            ? { "Content-Type": type }
-            : {}),
+          ...(type && type !== ContentType.FormData ? { 'Content-Type': type } : {})
         },
-        signal:
-          (cancelToken
-            ? this.createAbortSignal(cancelToken)
-            : requestParams.signal) || null,
-        body:
-          typeof body === "undefined" || body === null
-            ? null
-            : payloadFormatter(body),
+        signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
+        body: typeof body === 'undefined' || body === null ? null : payloadFormatter(body)
       }
     ).then(async (response) => {
       const r = response.clone() as HttpResponse<T, E>;
@@ -497,9 +476,7 @@ export class HttpClient<SecurityDataType = unknown> {
  * @version 1.0-SNAPSHOT
  * @baseUrl http://localhost:8081
  */
-export class Api<
-  SecurityDataType extends unknown,
-> extends HttpClient<SecurityDataType> {
+export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   async = {
     /**
      * No description
@@ -512,9 +489,9 @@ export class Api<
     getStatus: (execId: string, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/api/async/${execId}`,
-        method: "GET",
-        ...params,
-      }),
+        method: 'GET',
+        ...params
+      })
   };
   codebases = {
     /**
@@ -528,10 +505,10 @@ export class Api<
     save: (data: CodebaseModel, params: RequestParams = {}) =>
       this.request<string, void>({
         path: `/api/codebases`,
-        method: "POST",
+        method: 'POST',
         body: data,
         type: ContentType.Json,
-        ...params,
+        ...params
       }),
 
     /**
@@ -545,9 +522,9 @@ export class Api<
     findAll: (params: RequestParams = {}) =>
       this.request<CodebaseModel[], any>({
         path: `/api/codebases/all`,
-        method: "GET",
-        format: "json",
-        ...params,
+        method: 'GET',
+        format: 'json',
+        ...params
       }),
 
     /**
@@ -561,8 +538,8 @@ export class Api<
     analyze: (id: string, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/api/codebases/analyze/${id}`,
-        method: "POST",
-        ...params,
+        method: 'POST',
+        ...params
       }),
 
     /**
@@ -576,8 +553,8 @@ export class Api<
     load: (id: string, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/api/codebases/load/${id}`,
-        method: "POST",
-        ...params,
+        method: 'POST',
+        ...params
       }),
 
     /**
@@ -591,11 +568,11 @@ export class Api<
     search: (data: CodebaseSearchCriteriaModel, params: RequestParams = {}) =>
       this.request<CodebaseSearchResultModel, void>({
         path: `/api/codebases/search`,
-        method: "POST",
+        method: 'POST',
         body: data,
         type: ContentType.Json,
-        format: "json",
-        ...params,
+        format: 'json',
+        ...params
       }),
 
     /**
@@ -609,10 +586,10 @@ export class Api<
     update: (id: string, data: CodebaseModel, params: RequestParams = {}) =>
       this.request<string, void>({
         path: `/api/codebases/${id}`,
-        method: "PUT",
+        method: 'PUT',
         body: data,
         type: ContentType.Json,
-        ...params,
+        ...params
       }),
 
     /**
@@ -626,9 +603,9 @@ export class Api<
     get: (id: string, params: RequestParams = {}) =>
       this.request<CodebaseModel, any>({
         path: `/api/codebases/${id}`,
-        method: "GET",
-        format: "json",
-        ...params,
+        method: 'GET',
+        format: 'json',
+        ...params
       }),
 
     /**
@@ -642,11 +619,11 @@ export class Api<
     delete: (id: string, data: CodebaseModel, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/api/codebases/${id}`,
-        method: "DELETE",
+        method: 'DELETE',
         body: data,
         type: ContentType.Json,
-        ...params,
-      }),
+        ...params
+      })
   };
   diagrams = {
     /**
@@ -660,11 +637,11 @@ export class Api<
     callTree: (data: CallTreeCriteriaModel, params: RequestParams = {}) =>
       this.request<CallTreeModel[], void>({
         path: `/api/diagrams/call-tree`,
-        method: "POST",
+        method: 'POST',
         body: data,
         type: ContentType.Json,
-        format: "json",
-        ...params,
+        format: 'json',
+        ...params
       }),
 
     /**
@@ -683,9 +660,9 @@ export class Api<
     ) =>
       this.request<string, any>({
         path: `/api/diagrams/class`,
-        method: "GET",
+        method: 'GET',
         query: query,
-        ...params,
+        ...params
       }),
 
     /**
@@ -699,10 +676,10 @@ export class Api<
     getCrudDiagram: (params: RequestParams = {}) =>
       this.request<CrudModel, any>({
         path: `/api/diagrams/crud`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
+        method: 'GET',
+        format: 'json',
+        ...params
+      })
   };
   documents = {
     /**
@@ -713,18 +690,15 @@ export class Api<
      * @summary Get Interaction Document
      * @request POST:/api/documents/interaction
      */
-    getInteractionDocument: (
-      data: InteractionDocumentCriteriaModel,
-      params: RequestParams = {}
-    ) =>
+    getInteractionDocument: (data: InteractionDocumentCriteriaModel, params: RequestParams = {}) =>
       this.request<InteractionResponseModel, void>({
         path: `/api/documents/interaction`,
-        method: "POST",
+        method: 'POST',
         body: data,
         type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
+        format: 'json',
+        ...params
+      })
   };
   front = {
     /**
@@ -738,9 +712,9 @@ export class Api<
     get: (params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/api/front`,
-        method: "GET",
-        ...params,
-      }),
+        method: 'GET',
+        ...params
+      })
   };
   jpql = {
     /**
@@ -759,11 +733,11 @@ export class Api<
     ) =>
       this.request<any, any>({
         path: `/api/jpql`,
-        method: "GET",
+        method: 'GET',
         query: query,
-        format: "json",
-        ...params,
-      }),
+        format: 'json',
+        ...params
+      })
   };
   methods = {
     /**
@@ -777,12 +751,12 @@ export class Api<
     search: (data: MethodSearchCriteriaModel, params: RequestParams = {}) =>
       this.request<MethodSearchResultModel, void>({
         path: `/api/methods/search`,
-        method: "POST",
+        method: 'POST',
         body: data,
         type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
+        format: 'json',
+        ...params
+      })
   };
   processes = {
     /**
@@ -796,10 +770,10 @@ export class Api<
     get: (params: RequestParams = {}) =>
       this.request<LoadStatusModel, any>({
         path: `/api/processes/load/status`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
+        method: 'GET',
+        format: 'json',
+        ...params
+      })
   };
   project = {
     /**
@@ -813,10 +787,10 @@ export class Api<
     save: (data: ProjectModel, params: RequestParams = {}) =>
       this.request<string, void>({
         path: `/api/project`,
-        method: "POST",
+        method: 'POST',
         body: data,
         type: ContentType.Json,
-        ...params,
+        ...params
       }),
 
     /**
@@ -830,11 +804,11 @@ export class Api<
     search: (data: ProjectSearchCriteriaModel, params: RequestParams = {}) =>
       this.request<ProjectSearchResultModel, void>({
         path: `/api/project/search`,
-        method: "POST",
+        method: 'POST',
         body: data,
         type: ContentType.Json,
-        format: "json",
-        ...params,
+        format: 'json',
+        ...params
       }),
 
     /**
@@ -848,10 +822,10 @@ export class Api<
     update: (id: string, data: ProjectModel, params: RequestParams = {}) =>
       this.request<string, void>({
         path: `/api/project/${id}`,
-        method: "PUT",
+        method: 'PUT',
         body: data,
         type: ContentType.Json,
-        ...params,
+        ...params
       }),
 
     /**
@@ -865,9 +839,9 @@ export class Api<
     get: (id: string, params: RequestParams = {}) =>
       this.request<ProjectModel, any>({
         path: `/api/project/${id}`,
-        method: "GET",
-        format: "json",
-        ...params,
+        method: 'GET',
+        format: 'json',
+        ...params
       }),
 
     /**
@@ -881,11 +855,11 @@ export class Api<
     delete: (id: string, data: ProjectModel, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/api/project/${id}`,
-        method: "DELETE",
+        method: 'DELETE',
         body: data,
         type: ContentType.Json,
-        ...params,
-      }),
+        ...params
+      })
   };
   type = {
     /**
@@ -899,10 +873,10 @@ export class Api<
     save: (data: TypeModel, params: RequestParams = {}) =>
       this.request<string, void>({
         path: `/api/type`,
-        method: "POST",
+        method: 'POST',
         body: data,
         type: ContentType.Json,
-        ...params,
+        ...params
       }),
 
     /**
@@ -916,11 +890,11 @@ export class Api<
     search: (data: TypeSearchCriteriaModel, params: RequestParams = {}) =>
       this.request<TypeSearchResultModel, void>({
         path: `/api/type/search`,
-        method: "POST",
+        method: 'POST',
         body: data,
         type: ContentType.Json,
-        format: "json",
-        ...params,
+        format: 'json',
+        ...params
       }),
 
     /**
@@ -931,17 +905,13 @@ export class Api<
      * @summary Update
      * @request PUT:/api/type/{idOrQualifiedName}
      */
-    update: (
-      idOrQualifiedName: string,
-      data: TypeModel,
-      params: RequestParams = {}
-    ) =>
+    update: (idOrQualifiedName: string, data: TypeModel, params: RequestParams = {}) =>
       this.request<string, void>({
         path: `/api/type/${idOrQualifiedName}`,
-        method: "PUT",
+        method: 'PUT',
         body: data,
         type: ContentType.Json,
-        ...params,
+        ...params
       }),
 
     /**
@@ -955,9 +925,9 @@ export class Api<
     get: (idOrQualifiedName: string, params: RequestParams = {}) =>
       this.request<TypeModel, any>({
         path: `/api/type/${idOrQualifiedName}`,
-        method: "GET",
-        format: "json",
-        ...params,
+        method: 'GET',
+        format: 'json',
+        ...params
       }),
 
     /**
@@ -968,17 +938,13 @@ export class Api<
      * @summary Delete
      * @request DELETE:/api/type/{idOrQualifiedName}
      */
-    delete: (
-      idOrQualifiedName: string,
-      data: TypeModel,
-      params: RequestParams = {}
-    ) =>
+    delete: (idOrQualifiedName: string, data: TypeModel, params: RequestParams = {}) =>
       this.request<string, any>({
         path: `/api/type/${idOrQualifiedName}`,
-        method: "DELETE",
+        method: 'DELETE',
         body: data,
         type: ContentType.Json,
-        ...params,
-      }),
+        ...params
+      })
   };
 }

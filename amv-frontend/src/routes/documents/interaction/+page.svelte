@@ -5,6 +5,7 @@
   import { goto } from '$app/navigation';
   import CheckboxGroup from '$lib/arch/form/CheckboxGroup.svelte';
   import type { CriteriaModel } from './+page';
+  import InputField from '$lib/arch/form/InputField.svelte';
 
   let { data }: PageProps = $props();
   let { criteria: _criteria, methods, doc } = $derived(data);
@@ -57,6 +58,12 @@
       label="Stereotype"
       options={doc.sequenceDiagram.participantStereotypes}
       bind:checkedValues={criteria.documentCriteria.participableStereotypes}
+    />
+    <InputField
+      id="depth-options"
+      label="Depth"
+      type="number"
+      bind:value={criteria.documentCriteria.depth}
     />
   </section>
 
