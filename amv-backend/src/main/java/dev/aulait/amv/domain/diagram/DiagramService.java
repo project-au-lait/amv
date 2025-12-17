@@ -55,13 +55,10 @@ public class DiagramService {
     SequenceDiagramLogic2 sequenceDiagramLogic =
         new SequenceDiagramLogic2(typeRepository::findById, methodCallRepository::findByCallerId);
 
-    SequenceDiagramVo diagram =
-        sequenceDiagramLogic.generate(methodOpt.get(), participableStereotypes);
-
-    return diagram;
+    return sequenceDiagramLogic.generate(methodOpt.get(), participableStereotypes);
   }
 
-  public DiagramVo generateClassDiagram(Collection<String> qualifiedNames, int maxRecursionDepth) {
+  public DiagramVo generateClassDiagram(Collection<String> qualifiedNames, int depth) {
     List<TypeEntity> types = typeRepository.findByQualifiedNameIn(qualifiedNames);
 
     if (types.isEmpty()) {
@@ -69,9 +66,8 @@ public class DiagramService {
     }
 
     ClassDiagramLogic classDiagramLogic =
-        new ClassDiagramLogic(maxRecursionDepth, typeRepository::findByQualifiedName);
-    DiagramVo diagram = classDiagramLogic.generateClassDiagram(types);
+        new ClassDiagramLogic(depth, typeRepository::findByQualifiedName);
 
-    return diagram;
+    return classDiagramLogic.generateClassDiagram(types);
   }
 }
