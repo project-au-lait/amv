@@ -52,8 +52,8 @@ public class DiagramService {
       return SequenceDiagramVo.empty();
     }
 
-    SequenceDiagramLogic2 sequenceDiagramLogic =
-        new SequenceDiagramLogic2(typeRepository::findById, methodCallRepository::findByCallerId);
+    SequenceDiagramLogic sequenceDiagramLogic =
+        new SequenceDiagramLogic(typeRepository::findById, methodCallRepository::findByCallerId);
 
     SequenceDiagramVo diagram =
         sequenceDiagramLogic.generate(methodOpt.get(), participableStereotypes);
