@@ -22,11 +22,13 @@ export const load: PageLoad = async ({ fetch, url }) => {
 
     if ((result.list && result.list.length === 1) || fromLink) {
       const target = fromLink && criteria.text ? criteria.text : result.list![0].qualifiedName!;
+      const defaultDepth = 10;
 
       classDiagram =
         (await ApiHandler.handle<string>(fetch, (api) =>
           api.diagrams.classDiagram({
-            qualifiedName: target
+            qualifiedName: target,
+            depth: defaultDepth
           })
         )) || '';
     }

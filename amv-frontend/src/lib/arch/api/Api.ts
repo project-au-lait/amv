@@ -655,6 +655,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     classDiagram: (
       query?: {
         qualifiedName?: string;
+        depth: number;
       },
       params: RequestParams = {}
     ) =>
