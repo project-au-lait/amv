@@ -10,30 +10,40 @@ import CriteriaUtils from '$lib/arch/search/CriteriaUtils';
 
 export type CriteriaModel = {
   methodCriteria: MethodSearchCriteriaModel;
+  callTreeCriteria: CallTreeCriteriaModel;
   init: boolean;
-  signaturePattern: string;
+  signaturePattern?: string;
+  callTreeRequired?: boolean;
+  calledTreeRequired?: boolean;
 };
 
 export const load: PageLoad = async ({ fetch, url }) => {
   const criteria = {
     methodCriteria: {},
-    documentCriteria: {
-      participableStereotypes: []
-    },
+    callTreeCriteria: {},
     init: true,
     ...CriteriaUtils.decode(url)
   } as CriteriaModel;
 
-  const methods = await searchMethods(criteria, fetch);
+  const methods = await searchMethods(criteria.methodCriteria, fetch);
 
-  let callTrees: CallTreeModel[] = [];
+  criteria.callTreeCriteria.signaturePattern =
+    methods.list?.length === 1 ? methods.list[0].qualifiedSignature! : '';
 
-  if (Array.isArray(methods.list) && methods.list.length === 1) {
-    callTrees = await getCallTree(methods.list[0].qualifiedSignature);
+  if (criteria.init && criteria.signaturePattern && !criteria.methodCriteria?.text) {
+    criteria.methodCriteria = {
+      ...criteria.methodCriteria,
+      text: criteria.signaturePattern
+    };
   }
 
+  const callTrees = await getCallTree(criteria.callTreeCriteria);
+
   return {
-    criteria,
+    criteria: {
+      ...criteria,
+      init: false
+    },
     methods,
     showExternalPackage: false,
     packageLevel: 3,
@@ -41,39 +51,26 @@ export const load: PageLoad = async ({ fetch, url }) => {
   };
 };
 
-async function searchMethods(criteria: CriteriaModel, fetch: typeof window.fetch) {
-  if (
-    (criteria.methodCriteria?.text ?? '').length < 2 &&
-    (criteria.signaturePattern ?? '').length < 2
-  ) {
+async function searchMethods(criteria: MethodSearchCriteriaModel, fetch: typeof window.fetch) {
+  if (!criteria.text || criteria.text.length < 2) {
     return {} as MethodSearchResultModel;
-  }
-
-  if (criteria.signaturePattern && !criteria.methodCriteria?.text) {
-    criteria.methodCriteria = {
-      ...criteria.methodCriteria,
-      text: criteria.signaturePattern
-    };
   }
 
   return (
     (await ApiHandler.handle<MethodSearchResultModel>(fetch, (api) =>
-      api.methods.search(criteria.methodCriteria)
+      api.methods.search(criteria)
     )) || ({} as MethodSearchResultModel)
   );
 }
 
-async function getCallTree(signaturePattern: string | undefined) {
-  const criteria = {
-    callTreeRequired: true,
-    calledTreeRequired: true,
-    render: 'HTML',
-    limit: 10,
-    signaturePattern: signaturePattern
-  } as CallTreeCriteriaModel;
+async function getCallTree(callTreeCriteria: CallTreeCriteriaModel) {
+  if (!callTreeCriteria.signaturePattern) {
+    return {} as CallTreeModel[];
+  }
 
   return (
-    (await ApiHandler.handle<CallTreeModel[]>(fetch, (api) => api.diagrams.callTree(criteria))) ||
-    []
+    (await ApiHandler.handle<CallTreeModel[]>(fetch, (api) =>
+      api.diagrams.callTree(callTreeCriteria)
+    )) || []
   );
 }

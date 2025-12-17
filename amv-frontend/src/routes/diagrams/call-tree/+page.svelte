@@ -11,14 +11,22 @@
 
   let { data }: PageProps = $props();
   let { criteria: _criteria, methods } = $derived(data);
-  // svelte-ignore state_referenced_locally
-  let criteria = $state(_criteria);
   let { callTrees } = $derived(data);
   let { signaturePattern, callTreeRequired, calledTreeRequired } = $state(
     data.criteria as CallTreeCriteriaModel
   );
   let showExternalPackage = $state(data.showExternalPackage);
   let packageLevel = $state(data.packageLevel);
+
+  // svelte-ignore state_referenced_locally
+  let criteria = $state<CriteriaModel>({
+    ..._criteria,
+    callTreeCriteria: {
+      ..._criteria.callTreeCriteria,
+      callTreeRequired,
+      calledTreeRequired
+    }
+  });
 
   $effect(() => {
     criteria = _criteria;
@@ -96,8 +104,16 @@
   {@const method = callTree.method}
 
   <section class="container-fluid setting">
-    <CheckBox id="call-tree" label="Call Tree" bind:checked={callTreeRequired} />
-    <CheckBox id="called-tree" label="Called Tree" bind:checked={calledTreeRequired} />
+    <CheckBox
+      id="call-tree"
+      label="Call Tree"
+      bind:checked={criteria.callTreeCriteria.callTreeRequired}
+    />
+    <CheckBox
+      id="called-tree"
+      label="Called Tree"
+      bind:checked={criteria.callTreeCriteria.calledTreeRequired}
+    />
     <InputField
       id="internal-package-level"
       label="Internal Package Level"
@@ -122,7 +138,7 @@
       {method.qualifiedSignature}
     </p>
 
-    {#if callTreeRequired}
+    {#if criteria.callTreeCriteria.callTreeRequired}
       <h4>Call Tree</h4>
 
       {#each callTree.callTree as e}
@@ -130,7 +146,7 @@
       {/each}
     {/if}
 
-    {#if calledTreeRequired}
+    {#if criteria.callTreeCriteria.calledTreeRequired}
       <h4>Called Tree</h4>
 
       {#each callTree.calledTree as e}
