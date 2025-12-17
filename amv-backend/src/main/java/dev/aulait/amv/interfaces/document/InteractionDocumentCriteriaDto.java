@@ -12,4 +12,7 @@ public class InteractionDocumentCriteriaDto {
 
   @Schema(required = true)
   private List<String> participableStereotypes = new ArrayList<>();
+
+  @Schema(required = true)
+  private int depth;
 }

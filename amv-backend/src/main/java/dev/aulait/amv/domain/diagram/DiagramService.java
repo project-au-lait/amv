@@ -61,7 +61,7 @@ public class DiagramService {
     return diagram;
   }
 
-  public DiagramVo generateClassDiagram(Collection<String> qualifiedNames) {
+  public DiagramVo generateClassDiagram(Collection<String> qualifiedNames, int maxRecursionDepth) {
     List<TypeEntity> types = typeRepository.findByQualifiedNameIn(qualifiedNames);
 
     if (types.isEmpty()) {
@@ -70,7 +70,7 @@ public class DiagramService {
     }
 
     ClassDiagramLogic classDiagramLogic =
-        new ClassDiagramLogic(typeRepository::findByQualifiedName);
+        new ClassDiagramLogic(maxRecursionDepth, typeRepository::findByQualifiedName);
     DiagramVo diagram = classDiagramLogic.generateClassDiagram(types);
 
     return diagram;

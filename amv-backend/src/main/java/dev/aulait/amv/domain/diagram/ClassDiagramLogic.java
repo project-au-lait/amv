@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 @RequiredArgsConstructor
 public class ClassDiagramLogic {
 
-  private static final int MAX_RECURSION_DEPTH = 10;
+  private final int maxRecursionDepth;
 
   private final Function<String, Optional<TypeEntity>> typeFinder;
 
@@ -36,7 +36,7 @@ public class ClassDiagramLogic {
   }
 
   String write(TypeEntity type, int depth, Set<String> writtenTypes) {
-    if (depth > MAX_RECURSION_DEPTH || writtenTypes.contains(type.getQualifiedName())) {
+    if (depth > maxRecursionDepth || writtenTypes.contains(type.getQualifiedName())) {
       return "";
     }
 
@@ -57,8 +57,12 @@ public class ClassDiagramLogic {
 
       if (fieldTypeOpt.isPresent()) {
         TypeEntity fieldType = fieldTypeOpt.get();
-        sb.append(write(fieldType, depth + 1, writtenTypes));
-        sb.append(type.getName()).append(" o-- ").append(fieldType.getName()).append("\n");
+        String childDiagram = write(fieldType, depth + 1, writtenTypes);
+        sb.append(childDiagram);
+
+        if (!childDiagram.isEmpty()) {
+          sb.append(type.getName()).append(" o-- ").append(fieldType.getName()).append("\n");
+        }
       }
     }
     return sb.toString();
