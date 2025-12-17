@@ -38,8 +38,8 @@ public class CodebaseService {
 
   @PostConstruct
   public void init() {
-    logic.setStatusJudge(asyncService::isRunning);
-    logic.setPathJudge(projectService::isLoaded);
+    logic.setAnalysisStatusResolver(asyncService::isRunning);
+    logic.setProjectStatusResolver(projectService::isLoaded);
   }
 
   public CodebaseEntity find(String id) {

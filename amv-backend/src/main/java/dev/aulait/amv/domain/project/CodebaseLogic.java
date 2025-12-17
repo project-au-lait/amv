@@ -14,8 +14,11 @@ import lombok.Setter;
 @ApplicationScoped
 public class CodebaseLogic {
 
-  @Setter private Function<String, Boolean> statusJudge;
-  @Setter private Function<CodebaseEntity, Boolean> pathJudge;
+  /** in: codebase.id, out: analysing or not */
+  @Setter private Function<String, Boolean> analysisStatusResolver;
+
+  /** in: codebase, out: projectsLoaded or not */
+  @Setter private Function<CodebaseEntity, Boolean> projectStatusResolver;
 
   public Path dir(CodebaseEntity codebase) {
     return GitUtils.extractRootDir(DirectoryManager.CODEBASE_ROOT, codebase.getUrl());
@@ -55,9 +58,9 @@ public class CodebaseLogic {
                 .resolve(".done"));
 
     return CodebaseStatusVo.builder()
-        .analyzing(statusJudge.apply(codebase.getId()))
+        .analyzing(analysisStatusResolver.apply(codebase.getId()))
         .checkedOut(exists(codebase))
-        .projectsLoaded(pathJudge.apply(codebase))
+        .projectsLoaded(projectStatusResolver.apply(codebase))
         .metadataExtracted(metadataExtracted)
         .build();
   }
