@@ -65,7 +65,6 @@ public class DiagramService {
     List<TypeEntity> types = typeRepository.findByQualifiedNameIn(qualifiedNames);
 
     if (types.isEmpty()) {
-      // TODO: return empty diagram string
       return DiagramVo.empty();
     }
 
