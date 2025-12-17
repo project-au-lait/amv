@@ -13,8 +13,6 @@ export type CriteriaModel = {
   callTreeCriteria: CallTreeCriteriaModel;
   init: boolean;
   signaturePattern?: string;
-  callTreeRequired?: boolean;
-  calledTreeRequired?: boolean;
 };
 
 export const load: PageLoad = async ({ fetch, url }) => {
