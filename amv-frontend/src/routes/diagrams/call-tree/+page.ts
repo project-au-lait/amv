@@ -11,8 +11,6 @@ import CriteriaUtils from '$lib/arch/search/CriteriaUtils';
 export type CriteriaModel = {
   methodCriteria: MethodSearchCriteriaModel;
   callTreeCriteria: CallTreeCriteriaModel;
-  init: boolean;
-  signaturePattern?: string;
 };
 
 export const load: PageLoad = async ({ fetch, url }) => {
@@ -28,20 +26,10 @@ export const load: PageLoad = async ({ fetch, url }) => {
   criteria.callTreeCriteria.signaturePattern =
     methods.list?.length === 1 ? methods.list[0].qualifiedSignature! : '';
 
-  if (criteria.init && criteria.signaturePattern && !criteria.methodCriteria?.text) {
-    criteria.methodCriteria = {
-      ...criteria.methodCriteria,
-      text: criteria.signaturePattern
-    };
-  }
-
   const callTrees = await getCallTree(criteria.callTreeCriteria);
 
   return {
-    criteria: {
-      ...criteria,
-      init: false
-    },
+    criteria,
     methods,
     showExternalPackage: false,
     packageLevel: 3,

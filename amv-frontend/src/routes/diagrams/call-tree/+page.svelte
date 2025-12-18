@@ -33,6 +33,10 @@
   });
 
   $effect(() => {
+    if (signaturePattern && criteria.methodCriteria.text === undefined) {
+      criteria.methodCriteria.text = signaturePattern;
+    }
+
     search(criteria);
   });
 
