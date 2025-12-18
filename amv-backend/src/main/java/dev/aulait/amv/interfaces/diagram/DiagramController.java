@@ -71,7 +71,8 @@ public class DiagramController {
 
   @GET
   @Path("/class")
-  public String classDiagram(@QueryParam("qualifiedName") String qualifiedName) {
-    return service.generateClassDiagram(List.of(qualifiedName)).getImage();
+  public String classDiagram(
+      @QueryParam("qualifiedName") String qualifiedName, @QueryParam("depth") int depth) {
+    return service.generateClassDiagram(List.of(qualifiedName), depth).getImage();
   }
 }

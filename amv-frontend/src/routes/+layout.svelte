@@ -117,6 +117,10 @@
   }
 
   :global {
+    .del-color {
+      color: var(--pico-del-color);
+    }
+
     table.list {
       width: 100%;
 

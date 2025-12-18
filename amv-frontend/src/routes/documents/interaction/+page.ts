@@ -18,7 +18,8 @@ export const load: PageLoad = async ({ fetch, url }) => {
   const criteria = {
     methodCriteria: {},
     documentCriteria: {
-      participableStereotypes: []
+      participableStereotypes: [],
+      depth: 3
     },
     init: true,
     ...CriteriaUtils.decode(url)

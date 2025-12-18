@@ -19,7 +19,7 @@ public class DocumentService {
   private final MethodRepository methodRepository;
 
   public InteractionDocumentVo generateInteractionDocument(
-      String qualifiedSignature, List<String> participableStereotypes) {
+      String qualifiedSignature, List<String> participableStereotypes, int depth) {
     Optional<MethodEntity> methodOpt =
         methodRepository.findByQualifiedSignature(qualifiedSignature);
 
@@ -27,7 +27,7 @@ public class DocumentService {
         diagramService.generateSequenceDiagram(methodOpt, participableStereotypes);
 
     DiagramVo classDiagram =
-        diagramService.generateClassDiagram(sequenceDiagram.getParamOrReturnTypes());
+        diagramService.generateClassDiagram(sequenceDiagram.getParamOrReturnTypes(), depth);
 
     return InteractionDocumentVo.builder()
         .sequenceDiagram(sequenceDiagram)

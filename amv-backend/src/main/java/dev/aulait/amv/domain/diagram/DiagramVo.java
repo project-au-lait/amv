@@ -14,6 +14,6 @@ public class DiagramVo {
   private String image = DiagramUtils.draw(getText());
 
   public static DiagramVo empty() {
-    return new DiagramVo("");
+    return new DiagramVo("@startuml\nnote \"No types found\" as N\n@enduml");
   }
 }
