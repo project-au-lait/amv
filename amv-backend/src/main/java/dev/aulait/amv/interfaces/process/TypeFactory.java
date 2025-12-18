@@ -12,6 +12,7 @@ import dev.aulait.sqb.SearchCriteria;
 import dev.aulait.sqb.SearchCriteriaBuilder;
 import dev.aulait.sqb.SearchResult;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.util.Comparator;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +31,7 @@ public class TypeFactory {
     dto.setMethods(
         entity.getMethods().stream()
             .map(methodFactory::build)
+            .sorted(Comparator.comparingInt(MethodDto::getLineNo))
             .map(
                 method -> {
                   method.setSrcUrl(
