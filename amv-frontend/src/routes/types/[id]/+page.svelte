@@ -165,8 +165,8 @@
 <style>
   .accordion-row {
     display: flex;
-    align-items: flex-start; /* summary と固定ラベルを縦位置揃え */
-    gap: 0.5rem; /* ラベルと summary の間隔 */
+    align-items: flex-start; /* Vertically align summary and fixed labels */
+    gap: 0.5rem; /* Spacing between label and summary */
   }
 
   .fixed-col-tbl {
