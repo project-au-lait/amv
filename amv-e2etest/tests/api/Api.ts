@@ -301,7 +301,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://localhost:8080";
+  public baseUrl: string = "http://localhost:8081";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -496,7 +496,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title amv-backend API
  * @version 1.0-SNAPSHOT
- * @baseUrl http://localhost:8080
+ * @baseUrl http://localhost:8081
  */
 export class Api<
   SecurityDataType extends unknown,
