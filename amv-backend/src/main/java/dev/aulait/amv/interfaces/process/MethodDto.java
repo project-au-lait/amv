@@ -1,6 +1,7 @@
 package dev.aulait.amv.interfaces.process;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -8,7 +9,7 @@ import lombok.Data;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Data
-public class MethodDto {
+public class MethodDto implements Comparable<MethodDto> {
   private String namespace;
 
   @Schema(required = true)
@@ -39,4 +40,11 @@ public class MethodDto {
 
   @Schema(required = true)
   private List<CrudPointDto> crudPoints = new ArrayList<>();
+
+  @Override
+  public int compareTo(MethodDto other) {
+    return Comparator.comparing(
+            MethodDto::getSimpleSignature, Comparator.nullsFirst(String::compareTo))
+        .compare(this, other);
+  }
 }

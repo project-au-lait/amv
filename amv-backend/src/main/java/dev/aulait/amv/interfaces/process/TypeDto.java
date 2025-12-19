@@ -1,7 +1,7 @@
 package dev.aulait.amv.interfaces.process;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,11 +32,11 @@ public class TypeDto {
 
   @Schema(required = true)
   @Builder.Default
-  private List<FieldDto> fields = new ArrayList<>();
+  private SortedSet<FieldDto> fields = new TreeSet<>();
 
   @Schema(required = true)
   @Builder.Default
-  private List<MethodDto> methods = new ArrayList<>();
+  private SortedSet<MethodDto> methods = new TreeSet<>();
 
   @Schema(required = true)
   private SourceFileDto sourceFile;
