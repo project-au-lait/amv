@@ -16,7 +16,10 @@ export type CriteriaModel = {
 export const load: PageLoad = async ({ fetch, url }) => {
   const criteria = {
     methodCriteria: {},
-    callTreeCriteria: {},
+    callTreeCriteria: {
+      callTreeRequired: true,
+      calledTreeRequired: true
+    },
     init: true,
     ...CriteriaUtils.decode(url)
   } as CriteriaModel;
@@ -31,8 +34,6 @@ export const load: PageLoad = async ({ fetch, url }) => {
   return {
     criteria,
     methods,
-    showExternalPackage: false,
-    packageLevel: 3,
     callTrees
   };
 };

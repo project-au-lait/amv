@@ -10,33 +10,17 @@
   import InputField from '$lib/arch/form/InputField.svelte';
 
   let { data }: PageProps = $props();
-  let { criteria: _criteria, methods } = $derived(data);
-  let { callTrees } = $derived(data);
-  let { signaturePattern, callTreeRequired, calledTreeRequired } = $state(
-    data.criteria as CallTreeCriteriaModel
-  );
-  let showExternalPackage = $state(data.showExternalPackage);
-  let packageLevel = $state(data.packageLevel);
-
+  let { criteria: _criteria, methods, callTrees } = $derived(data);
   // svelte-ignore state_referenced_locally
-  let criteria = $state<CriteriaModel>({
-    ..._criteria,
-    callTreeCriteria: {
-      ..._criteria.callTreeCriteria,
-      callTreeRequired,
-      calledTreeRequired
-    }
-  });
+  let criteria = $state(_criteria);
+  let showExternalPackage = $state(true);
+  let packageLevel = $state(3);
 
   $effect(() => {
     criteria = _criteria;
   });
 
   $effect(() => {
-    if (signaturePattern && criteria.methodCriteria.text === undefined) {
-      criteria.methodCriteria.text = signaturePattern;
-    }
-
     search(criteria);
   });
 
@@ -205,12 +189,7 @@
           <ScrollText />
         </a>
 
-        <ToCallTree
-          signaturePattern={method.qualifiedSignature}
-          onclick={() => {
-            signaturePattern = method.qualifiedSignature;
-          }}
-        />
+        <ToCallTree signaturePattern={method.qualifiedSignature} />
       {/if}
     </div>
   {/if}
