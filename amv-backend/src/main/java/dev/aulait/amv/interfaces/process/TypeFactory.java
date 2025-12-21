@@ -13,6 +13,8 @@ import dev.aulait.sqb.SearchCriteriaBuilder;
 import dev.aulait.sqb.SearchResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Map;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 @ApplicationScoped
@@ -36,14 +38,17 @@ public class TypeFactory {
                       typeId2url.get(method.getId().getTypeId()) + "#L" + method.getLineNo());
                   return method;
                 })
-            .toList());
+            .collect(Collectors.toCollection(TreeSet::new)));
     return dto;
   }
 
   public TypeDto build(TypeEntity entity) {
     // TODO: optimize to call one time BeanUtils.map
     TypeDto dto = BeanUtils.map(entity, TypeDto.class);
-    dto.setMethods(entity.getMethods().stream().map(methodFactory::build).toList());
+    dto.setMethods(
+        entity.getMethods().stream()
+            .map(methodFactory::build)
+            .collect(Collectors.toCollection(TreeSet::new)));
 
     return dto;
   }
