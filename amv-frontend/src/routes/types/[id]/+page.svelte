@@ -128,7 +128,7 @@
           {:else}
             {m.line()}{call.lineNo}
           {/if}
-          <strong>Call:</strong>
+          <strong>{m.call()}:</strong>
           {#if call.qualifiedSignature}
             {call.qualifiedSignature}
             <a

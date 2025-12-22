@@ -34,7 +34,7 @@
   "line": "行目",
 
   "callTreeLegend": "コールツリー内の各要素のフォントには、以下の意味があります。",
-  "call": "メソッド呼び出し",
+  "call": "呼び出し",
   "internalCallDescription": "内部パッケージレベル内のメソッド呼び出し",
   "dataClassDescription": "DTO、Entity、またはそれらの Builder など、データを保持するクラス（データクラス）",
   "setterDescription": "データクラスの setter メソッド",
