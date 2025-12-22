@@ -8,15 +8,12 @@
   const unsolvedCnt = type.unsolvedCnt ? type.unsolvedCnt : 0;
   const unsolvedRate = type.unsolvedRate ? (type.unsolvedRate * 100).toFixed(1) : 0;
 
-  const openDetailsFromHash = () => {
-    const hash = window.location.hash;
-    if (!hash) {
+  const openDetailsFromAnchor = (simpleSignature?: string) => {
+    if (!simpleSignature) {
       return;
     }
 
-    const id = hash.slice(1);
-    const decodedId = decodeURIComponent(id);
-    const targetElement = document.getElementById(decodedId);
+    const targetElement = document.getElementById(simpleSignature);
     if (targetElement) {
       const details = targetElement.querySelector(':scope > details') as HTMLDetailsElement | null;
       if (details) {
@@ -24,9 +21,17 @@
       }
     }
   };
-</script>
 
-<svelte:window on:hashchange={openDetailsFromHash} />
+  onMount(() => {
+    const hash = window.location.hash;
+    if (!hash) {
+      return;
+    }
+
+    const decodedId = decodeURIComponent(hash.slice(1));
+    openDetailsFromAnchor(decodedId);
+  });
+</script>
 
 <!-- TODO: add a link to source -->
 <article>
@@ -77,7 +82,11 @@
           <!-- TODO: show method.parameters -->
           <!-- TODO: add a link to call tree -->
           <td>
-            <a href={`#${method.simpleSignature}`} title={method.simpleSignature}>
+            <a
+              href={`#${method.simpleSignature}`}
+              title={method.simpleSignature}
+              onclick={() => openDetailsFromAnchor(method.simpleSignature)}
+            >
               {method.simpleSignature}
             </a>
             {#if method.unsolvedReason}
