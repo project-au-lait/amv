@@ -57,8 +57,9 @@ public class DirectoryManager {
   }
 
   public static Path getExtractionDir(String codebaseName, String hash) {
+    // TODO: refactor
     String dirName = codebaseName + "_" + hash;
-    return FileUtils.collectMatchedDirs(EXTRACTION_ROOT, dirName).findFirst().orElseThrow();
+    return EXTRACTION_ROOT.resolve(dirName);
   }
 
   public static void deleteExtractionDirs(String codebaseName) {

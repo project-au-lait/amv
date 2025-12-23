@@ -100,7 +100,10 @@ public class FileUtils {
     PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + globPattern);
 
     try (Stream<Path> paths = Files.walk(sourceDir)) {
-      return paths.filter(path -> matcher.matches(sourceDir.relativize(path)));
+      return paths
+          .filter(path -> matcher.matches(sourceDir.relativize(path)))
+          .collect(Collectors.toList())
+          .stream();
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
