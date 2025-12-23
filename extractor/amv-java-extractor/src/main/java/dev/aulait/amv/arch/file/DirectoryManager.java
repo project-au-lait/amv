@@ -58,4 +58,14 @@ public class DirectoryManager {
     String dirName = codebaseName + "_" + hash;
     return EXTRACTION_ROOT.resolve(dirName);
   }
+
+  public static void deleteExtractionDirs(String codebaseName) {
+    String extractionDirGlob = codebaseName + "_*";
+    FileUtils.collectMatchedDirs(EXTRACTION_ROOT, extractionDirGlob)
+        .forEach(FileUtils::deleteRecursively);
+  }
+
+  public static void deleteCodebaseDir(String codebaseName) {
+    FileUtils.collectMatchedDirs(CODEBASE_ROOT, codebaseName).forEach(FileUtils::deleteRecursively);
+  }
 }

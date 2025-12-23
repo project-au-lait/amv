@@ -7,6 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -126,6 +129,34 @@ public class FileUtils {
         log.info("Deleting {}", path.toAbsolutePath().normalize());
         Files.delete(path);
       }
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  public static void deleteRecursively(Path root) {
+    try (Stream<Path> walk = Files.walk(root)) {
+      walk.sorted(Comparator.comparingInt(Path::getNameCount).reversed())
+          .forEach(FileUtils::delete);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  public static Stream<Path> collectMatchedDirs(Path sourceDir, String globPattern) {
+    if (!Files.exists(sourceDir)) {
+      return Stream.empty();
+    }
+
+    PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + globPattern);
+
+    try (Stream<Path> children = Files.list(sourceDir)) {
+      List<Path> matched =
+          children
+              .filter(p -> matcher.matches(p.getFileName()))
+              .filter(Files::isDirectory)
+              .collect(Collectors.toList());
+      return matched.stream();
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
