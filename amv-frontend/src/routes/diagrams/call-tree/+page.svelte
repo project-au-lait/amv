@@ -6,7 +6,7 @@
   import type { CriteriaModel } from './+page';
   import { ScrollText, Search } from '@lucide/svelte';
   import type { PageProps } from './$types';
-  import ToCallTree from '$lib/domain/diagrams/ToCallTree.svelte';
+  import ToCallTree, { buildQueryString } from '$lib/domain/diagrams/ToCallTree.svelte';
   import InputField from '$lib/arch/form/InputField.svelte';
 
   let { data }: PageProps = $props();
@@ -28,10 +28,6 @@
     await goto(CriteriaUtils.encode(criteria));
   }
 
-  function url(qualifiedSignature: string | undefined) {
-    return CriteriaUtils.encode({ methodCriteria: { text: qualifiedSignature } });
-  }
-
   function isInternalPackage(element: CallTreeElementModel, level: number): boolean {
     return element.elementTags.some((tag) => {
       if (!tag.startsWith('same-package-')) return false;
@@ -51,7 +47,7 @@
   <ul>
     {#each methods.list as method}
       <li>
-        <a href={url(method.qualifiedSignature)}>{method.qualifiedSignature}</a>
+        <a href={buildQueryString(method.qualifiedSignature)}>{method.qualifiedSignature}</a>
       </li>
     {/each}
 
