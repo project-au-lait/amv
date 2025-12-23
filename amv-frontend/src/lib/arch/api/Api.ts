@@ -250,6 +250,11 @@ export interface TypeSearchResultModel {
   pageResult?: PageResult;
 }
 
+export type DiagramSearchCriteriaMode = {
+  qualifiedName?: string;
+  depth: number;
+};
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
 
@@ -660,10 +665,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {}
     ) =>
-      this.request<string, any>({
+      this.request<DiagramModel, any>({
         path: `/api/diagrams/class`,
         method: 'GET',
         query: query,
+        type: ContentType.Json,
+        format: 'json',
         ...params
       }),
 

@@ -1,9 +1,11 @@
 package dev.aulait.amv.interfaces.diagram;
 
+import dev.aulait.amv.arch.util.BeanUtils;
 import dev.aulait.amv.domain.diagram.CallTreeService;
 import dev.aulait.amv.domain.diagram.CallTreeVo;
 import dev.aulait.amv.domain.diagram.CrudElementVo;
 import dev.aulait.amv.domain.diagram.DiagramService;
+import dev.aulait.amv.domain.diagram.DiagramVo;
 import dev.aulait.amv.domain.process.MethodService;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -71,8 +73,9 @@ public class DiagramController {
 
   @GET
   @Path("/class")
-  public String classDiagram(
+  public DiagramVo classDiagram(
       @QueryParam("qualifiedName") String qualifiedName, @QueryParam("depth") int depth) {
-    return service.generateClassDiagram(List.of(qualifiedName), depth).getImage();
+    return BeanUtils.map(
+        service.generateClassDiagram(List.of(qualifiedName), depth), DiagramVo.class);
   }
 }
