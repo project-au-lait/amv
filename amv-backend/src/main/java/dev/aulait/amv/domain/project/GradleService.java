@@ -18,7 +18,7 @@ public class GradleService {
   public List<ProjectEntity> loadProject(Path codebaseDir) {
     List<Path> buildFileDirs =
         // TODO: support Kotlin DSL
-        FileUtils.walk(codebaseDir, "build.gradle").map(Path::getParent).toList();
+        FileUtils.collectMatchedPaths(codebaseDir, "build.gradle").map(Path::getParent).toList();
 
     if (buildFileDirs.isEmpty()) {
       return List.of();

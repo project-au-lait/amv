@@ -79,7 +79,7 @@ public class MavenService {
     String buildFilePattern =
         Objects.toString(config.getBuild().getBuildFilePattern(), "**pom.xml");
 
-    return FileUtils.walk(codebaseDir, buildFilePattern)
+    return FileUtils.collectMatchedPaths(codebaseDir, buildFilePattern)
         .map(Path::getParent)
         .sorted(Comparator.comparing(Path::getNameCount))
         .toList();

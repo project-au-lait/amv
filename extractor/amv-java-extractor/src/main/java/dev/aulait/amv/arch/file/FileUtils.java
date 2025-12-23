@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
@@ -20,20 +19,21 @@ import lombok.extern.slf4j.Slf4j;
 public class FileUtils {
 
   public static Path createDir(Path parentDir, String dirName) {
-    Path dir = parentDir.resolve(dirName);
+    return createDir(parentDir.resolve(dirName));
+  }
 
-    if (Files.exists(dir)) {
-      return dir;
+  public static Path createDir(Path dir) {
+    if (!Files.exists(dir)) {
+      log.info("Creating directory: {}", dir.toAbsolutePath().normalize());
+
+      try {
+        Files.createDirectories(dir);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
     }
 
-    log.info("Creating directory: {}", dir.toAbsolutePath().normalize());
-
-    try {
-      Files.createDirectories(dir);
-      return dir;
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    return dir;
   }
 
   public static Path createTempFile(Path dir, String prefix, String suffix) {
@@ -92,52 +92,15 @@ public class FileUtils {
     }
   }
 
-  public static Stream<FilePathVo> collect(Path sourceDir, String globPattern) {
-    return walk(sourceDir, globPattern).map(filePath -> new FilePathVo(sourceDir, filePath));
-  }
-
-  public static Stream<Path> walk(Path sourceDir, String globPattern) {
-
+  public static Stream<Path> collectMatchedPaths(Path sourceDir, String globPattern) {
     if (!Files.exists(sourceDir)) {
       return Stream.empty();
     }
 
     PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + globPattern);
 
-    try {
-      return Files.walk(sourceDir).filter(path -> matcher.matches(sourceDir.relativize(path)));
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
-  public static Path mkdir(Path dir) {
-    try {
-      if (!Files.exists(dir)) {
-        log.info("Creating directory {}", dir.toAbsolutePath().normalize());
-        Files.createDirectories(dir);
-      }
-      return dir;
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
-  public static void delete(Path path) {
-    try {
-      if (Files.exists(path)) {
-        log.info("Deleting {}", path.toAbsolutePath().normalize());
-        Files.delete(path);
-      }
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
-  public static void deleteRecursively(Path root) {
-    try (Stream<Path> walk = Files.walk(root)) {
-      walk.sorted(Comparator.comparingInt(Path::getNameCount).reversed())
-          .forEach(FileUtils::delete);
+    try (Stream<Path> paths = Files.walk(sourceDir)) {
+      return paths.filter(path -> matcher.matches(sourceDir.relativize(path)));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -151,12 +114,31 @@ public class FileUtils {
     PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + globPattern);
 
     try (Stream<Path> children = Files.list(sourceDir)) {
-      List<Path> matched =
-          children
-              .filter(p -> matcher.matches(p.getFileName()))
-              .filter(Files::isDirectory)
-              .collect(Collectors.toList());
-      return matched.stream();
+      return children
+          .filter(path -> matcher.matches(path.getFileName()))
+          .filter(Files::isDirectory)
+          .collect(Collectors.toList())
+          .stream();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  public static void delete(Path path) {
+    try {
+      if (Files.exists(path)) {
+        log.info("Deleting: {}", path.toAbsolutePath().normalize());
+        Files.delete(path);
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  public static void deleteRecursively(Path root) {
+    try (Stream<Path> walk = Files.walk(root)) {
+      walk.sorted(Comparator.comparingInt(Path::getNameCount).reversed())
+          .forEach(FileUtils::delete);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

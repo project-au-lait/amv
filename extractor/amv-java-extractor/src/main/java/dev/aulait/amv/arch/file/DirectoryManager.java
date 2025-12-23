@@ -1,21 +1,24 @@
 package dev.aulait.amv.arch.file;
 
 import java.nio.file.Path;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * Manages application directories. The directory structure is as follows:
  *
  * <pre>
- * - AMV_HOME
+ * - amv-home
  *   - codebase
  *     - {codebaseName}
  *   - extraction
- *     - {codebaseName}_{projectName}_{timestamp}
+ *     - {codebaseName}_{commitHash}
  *   - h2db  (actually this is not managed here, but created by H2 database engine)
  *     - amv.h2.db
  *     - amv.trace.db
  * </pre>
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DirectoryManager {
 
   private static final boolean APP_IN_CONTAINER = System.getenv().containsKey("APP_IN_CONTAINER");
@@ -41,11 +44,11 @@ public class DirectoryManager {
   public static final Path SECURITY_ROOT = AMV_HOME.resolve("security");
 
   static {
-    FileUtils.mkdir(MOUNT_DIR);
-    FileUtils.mkdir(AMV_HOME);
-    FileUtils.mkdir(CODEBASE_ROOT);
-    FileUtils.mkdir(EXTRACTION_ROOT);
-    FileUtils.mkdir(SECURITY_ROOT);
+    FileUtils.createDir(MOUNT_DIR);
+    FileUtils.createDir(AMV_HOME);
+    FileUtils.createDir(CODEBASE_ROOT);
+    FileUtils.createDir(EXTRACTION_ROOT);
+    FileUtils.createDir(SECURITY_ROOT);
   }
 
   public static Path createExtractionDir(String codebaseName, String hash) {
@@ -54,15 +57,13 @@ public class DirectoryManager {
   }
 
   public static Path getExtractionDir(String codebaseName, String hash) {
-    // TODO: refactor
     String dirName = codebaseName + "_" + hash;
-    return EXTRACTION_ROOT.resolve(dirName);
+    return FileUtils.collectMatchedDirs(EXTRACTION_ROOT, dirName).findFirst().orElseThrow();
   }
 
   public static void deleteExtractionDirs(String codebaseName) {
-    String extractionDirGlob = codebaseName + "_*";
-    FileUtils.collectMatchedDirs(EXTRACTION_ROOT, extractionDirGlob)
-        .forEach(FileUtils::deleteRecursively);
+    String dirGlob = codebaseName + "_*";
+    FileUtils.collectMatchedDirs(EXTRACTION_ROOT, dirGlob).forEach(FileUtils::deleteRecursively);
   }
 
   public static void deleteCodebaseDir(String codebaseName) {
