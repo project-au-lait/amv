@@ -22,7 +22,7 @@
     await goto(CriteriaUtils.encode(criteria));
   }
 
-  function url(qualifiedSignature: string | undefined) {
+  function url(qualifiedSignature: string) {
     return CriteriaUtils.encode({ typeSearchCriteriaModel: { text: qualifiedSignature } });
   }
 </script>
