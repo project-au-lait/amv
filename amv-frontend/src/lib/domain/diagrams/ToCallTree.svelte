@@ -1,9 +1,9 @@
 <script lang="ts" module>
   import CriteriaUtils from '$lib/arch/search/CriteriaUtils';
 
-  export const buildQueryString = (partialSignature?: string): string => {
+  export function buildQueryString(partialSignature?: string): string {
     return CriteriaUtils.encode({ methodCriteria: { text: partialSignature } });
-  };
+  }
 </script>
 
 <script lang="ts">
