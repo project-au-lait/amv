@@ -1,14 +1,15 @@
 package dev.aulait.amv.interfaces.diagram;
 
+import dev.aulait.amv.arch.util.BeanUtils;
 import dev.aulait.amv.domain.diagram.CallTreeService;
 import dev.aulait.amv.domain.diagram.CallTreeVo;
 import dev.aulait.amv.domain.diagram.CrudElementVo;
 import dev.aulait.amv.domain.diagram.DiagramService;
+import dev.aulait.amv.domain.diagram.DiagramVo;
 import dev.aulait.amv.domain.process.MethodService;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,10 +70,12 @@ public class DiagramController {
     return crudFactory.build(elements, typeId2url);
   }
 
-  @GET
+  @POST
   @Path("/class")
-  public String classDiagram(
-      @QueryParam("qualifiedName") String qualifiedName, @QueryParam("depth") int depth) {
-    return service.generateClassDiagram(List.of(qualifiedName), depth).getImage();
+  public DiagramDto classDiagram(SequenceDiagramCriteriaDto criteria) {
+    DiagramVo vo =
+        service.generateClassDiagram(
+            List.of(criteria.getQualifiedSignature()), criteria.getDepth());
+    return BeanUtils.map(vo, DiagramDto.class);
   }
 }
