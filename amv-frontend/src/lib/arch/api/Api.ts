@@ -85,6 +85,12 @@ export interface CrudPointModel {
   crud: string;
 }
 
+export interface DiagramCriteriaModel {
+  qualifiedSignature: string;
+  /** @format int32 */
+  depth: number;
+}
+
 export interface DiagramModel {
   text: string;
   image: string;
@@ -209,12 +215,6 @@ export interface ProjectSearchCriteriaModel {
 export interface ProjectSearchResultModel {
   list?: ProjectModel[];
   pageResult?: PageResult;
-}
-
-export interface SequenceDiagramCriteriaModel {
-  qualifiedSignature: string;
-  /** @format int32 */
-  depth: number;
 }
 
 export interface SequenceDiagramModel {
@@ -664,7 +664,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Class Diagram
      * @request POST:/api/diagrams/class
      */
-    classDiagram: (data: SequenceDiagramCriteriaModel, params: RequestParams = {}) =>
+    classDiagram: (data: DiagramCriteriaModel, params: RequestParams = {}) =>
       this.request<DiagramModel, void>({
         path: `/api/diagrams/class`,
         method: 'POST',

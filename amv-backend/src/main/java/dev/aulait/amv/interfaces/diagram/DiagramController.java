@@ -72,7 +72,7 @@ public class DiagramController {
 
   @POST
   @Path("/class")
-  public DiagramDto classDiagram(SequenceDiagramCriteriaDto criteria) {
+  public DiagramDto classDiagram(DiagramCriteriaDto criteria) {
     DiagramVo vo =
         service.generateClassDiagram(
             List.of(criteria.getQualifiedSignature()), criteria.getDepth());

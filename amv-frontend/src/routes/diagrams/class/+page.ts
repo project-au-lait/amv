@@ -2,7 +2,7 @@ import type {
   TypeSearchCriteriaModel,
   TypeSearchResultModel,
   DiagramModel,
-  SequenceDiagramCriteriaModel
+  DiagramCriteriaModel
 } from '$lib/arch/api/Api';
 import ApiHandler from '$lib/arch/api/ApiHandler';
 import CriteriaUtils from '$lib/arch/search/CriteriaUtils';
@@ -10,13 +10,13 @@ import type { PageLoad } from './$types';
 
 export type CriteriaModel = {
   typeSearchCriteria: TypeSearchCriteriaModel;
-  sequenceDiagramCriteria: SequenceDiagramCriteriaModel;
+  diagramCriteria: DiagramCriteriaModel;
 };
 
 export const load: PageLoad = async ({ fetch, url }) => {
   const criteria = {
     typeSearchCriteria: {},
-    sequenceDiagramCriteria: {
+    diagramCriteria: {
       qualifiedSignature: '',
       depth: 10
     },
@@ -25,12 +25,9 @@ export const load: PageLoad = async ({ fetch, url }) => {
 
   const typeResult = await searchTypes(criteria.typeSearchCriteria, fetch);
 
-  criteria.sequenceDiagramCriteria.qualifiedSignature = await getQualifiedName(
-    criteria,
-    typeResult
-  );
+  criteria.diagramCriteria.qualifiedSignature = await getQualifiedName(criteria, typeResult);
 
-  const classDiagram = await getClassDiagram(criteria.sequenceDiagramCriteria, fetch);
+  const classDiagram = await getClassDiagram(criteria.diagramCriteria, fetch);
 
   return {
     criteria,
@@ -67,7 +64,7 @@ async function searchTypes(
   );
 }
 
-async function getClassDiagram(criteria: SequenceDiagramCriteriaModel, fetch: typeof window.fetch) {
+async function getClassDiagram(criteria: DiagramCriteriaModel, fetch: typeof window.fetch) {
   if (!criteria.qualifiedSignature) {
     return {} as DiagramModel;
   }
