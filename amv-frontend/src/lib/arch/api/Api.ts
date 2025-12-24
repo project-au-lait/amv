@@ -37,6 +37,12 @@ export interface CallTreeElementModel {
   methodTags: string[];
 }
 
+export interface ClassDiagramCriteriaModel {
+  qualifiedSignature: string;
+  /** @format int32 */
+  depth: number;
+}
+
 export interface CodebaseModel {
   id: string;
   name?: string;
@@ -83,12 +89,6 @@ export interface CrudPointModel {
   dataName: string;
   type: string;
   crud: string;
-}
-
-export interface DiagramCriteriaModel {
-  qualifiedSignature: string;
-  /** @format int32 */
-  depth: number;
 }
 
 export interface DiagramModel {
@@ -664,7 +664,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Class Diagram
      * @request POST:/api/diagrams/class
      */
-    classDiagram: (data: DiagramCriteriaModel, params: RequestParams = {}) =>
+    classDiagram: (data: ClassDiagramCriteriaModel, params: RequestParams = {}) =>
       this.request<DiagramModel, void>({
         path: `/api/diagrams/class`,
         method: 'POST',
