@@ -128,10 +128,18 @@ public class FileUtils {
   }
 
   public static void delete(Path path) {
+    if (!Files.exists(path)) {
+      return;
+    }
+
     try {
-      if (Files.exists(path)) {
+      if (path.toFile().setWritable(true, false)) {
         log.info("Deleting: {}", path.toAbsolutePath().normalize());
         Files.delete(path);
+      } else {
+        log.warn(
+            "Could not set writable attribute and skip delete: {}",
+            path.toAbsolutePath().normalize());
       }
     } catch (IOException e) {
       throw new UncheckedIOException(e);
