@@ -2,6 +2,7 @@ package dev.aulait.amv.arch.file;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -138,9 +139,10 @@ public class FileUtils {
         Files.delete(path);
       } else {
         log.warn(
-            "Could not set writable attribute and skip delete: {}",
-            path.toAbsolutePath().normalize());
+            "Could not set writable attribute, skip delete: {}", path.toAbsolutePath().normalize());
       }
+    } catch (FileSystemException fse) {
+      log.warn("File is locked or in use, skip delete: {}", path.toAbsolutePath().normalize());
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
