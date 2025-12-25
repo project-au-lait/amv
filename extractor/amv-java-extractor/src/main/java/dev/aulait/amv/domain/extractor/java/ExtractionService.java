@@ -28,7 +28,9 @@ public class ExtractionService {
       Path outDir) {
 
     List<Path> targetFiles =
-        sourceDirs.stream().flatMap(sourceDir -> FileUtils.walk(sourceDir, globPattern)).toList();
+        sourceDirs.stream()
+            .flatMap(sourceDir -> FileUtils.collectMatchedPaths(sourceDir, globPattern))
+            .toList();
 
     log.info("Found {} files matching '{}'", targetFiles.size(), globPattern);
 

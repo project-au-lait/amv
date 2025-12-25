@@ -72,6 +72,9 @@ public class CodebaseService {
 
   @Transactional
   public void delete(CodebaseEntity entity) {
+    DirectoryManager.deleteExtractionDirs(entity.getName());
+    DirectoryManager.deleteCodebaseDir(entity.getName());
+
     CodebaseEntity managedEntity = em.merge(entity);
     codebaseRepository.delete(managedEntity);
   }

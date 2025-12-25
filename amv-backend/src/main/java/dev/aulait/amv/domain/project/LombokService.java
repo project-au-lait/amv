@@ -66,10 +66,11 @@ public class LombokService {
       return List.of(nolombokDir, delombokDir);
     }
 
-    FileUtils.collect(sourceDir, "**/*.java")
+    FileUtils.collectMatchedPaths(sourceDir, "**/*.java")
+        .map(filePath -> new FilePathVo(sourceDir, filePath))
         .forEach(javaFile -> assort(javaFile, projectDir, lombokDir, nolombokDir));
 
-    if (FileUtils.walk(lombokDir, "**/*").findAny().isEmpty()) {
+    if (FileUtils.collectMatchedPaths(lombokDir, "**/*").findAny().isEmpty()) {
       return List.of(nolombokDir);
     }
 

@@ -14,7 +14,7 @@ CREATE TABLE codebase (
 
 CREATE TABLE project (
   id CHAR(22) PRIMARY KEY,
-  codebase_id CHAR(22) REFERENCES codebase,
+  codebase_id CHAR(22) REFERENCES codebase ON DELETE CASCADE,
   name VARCHAR(255),
   path VARCHAR(255),
   source_dirs TEXT,
@@ -25,7 +25,7 @@ CREATE TABLE project (
 
 CREATE TABLE source_file (
   id CHAR(22) PRIMARY KEY,
-  project_id CHAR(22) REFERENCES project,
+  project_id CHAR(22) REFERENCES project ON DELETE CASCADE,
   name VARCHAR(255),
   path VARCHAR(255),
   namespace VARCHAR(511),
@@ -35,7 +35,7 @@ CREATE TABLE source_file (
 
 
 CREATE TABLE reference (
-  source_file_id CHAR(22) REFERENCES source_file,
+  source_file_id CHAR(22) REFERENCES source_file ON DELETE CASCADE,
   seq_no INT,
   reference VARCHAR(1023) NOT NULL,
   PRIMARY KEY (source_file_id, seq_no),
@@ -45,7 +45,7 @@ CREATE TABLE reference (
 
 CREATE TABLE type (
   id CHAR(22) PRIMARY KEY,
-  source_file_id CHAR(22) REFERENCES source_file,
+  source_file_id CHAR(22) REFERENCES source_file ON DELETE CASCADE,
   name VARCHAR(511) NOT NULL,
   qualified_name VARCHAR(1023) UNIQUE,
   kind CHAR(1),
@@ -62,7 +62,7 @@ CREATE TABLE type (
 
 
 CREATE TABLE method (
-  type_id CHAR(22) REFERENCES type,
+  type_id CHAR(22) REFERENCES type ON DELETE CASCADE,
   seq_no INT,
   name VARCHAR(255) NOT NULL,
   qualified_signature VARCHAR(1023) UNIQUE,
@@ -87,13 +87,13 @@ CREATE TABLE method_param (
   name VARCHAR(255) NOT NULL,
   type VARCHAR(1023),
   PRIMARY KEY (type_id, method_seq_no, seq_no),
-  FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no),
+  FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no) ON DELETE CASCADE,
   --{commonColumns}
 );
 
 
 CREATE TABLE field (
-  type_id CHAR(22) REFERENCES type,
+  type_id CHAR(22) REFERENCES type ON DELETE CASCADE,
   seq_no INT,
   name VARCHAR(255) NOT NULL,
   type VARCHAR(1023),
@@ -104,13 +104,13 @@ CREATE TABLE field (
 
 CREATE TABLE flow_statement (
   id CHAR(22) PRIMARY KEY,
-  parent_id CHAR(22) REFERENCES flow_statement,
+  parent_id CHAR(22) REFERENCES flow_statement ON DELETE CASCADE,
   type_id CHAR(22),
   method_seq_no INT,
   kind CHAR(1),
   content TEXT,
   line_no INT,
-  FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no),
+  FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no) ON DELETE CASCADE,
   --{commonColumns}
 );
 
@@ -128,16 +128,16 @@ CREATE TABLE method_call (
   callee_type_id CHAR(22),
   callee_seq_no INT,
   caller_seq_no INT,
-  flow_statement_id CHAR(22) REFERENCES flow_statement,
+  flow_statement_id CHAR(22) REFERENCES flow_statement ON DELETE CASCADE,
   PRIMARY KEY (type_id, method_seq_no, seq_no),
-  FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no),
-  FOREIGN KEY (callee_type_id, callee_seq_no) REFERENCES method (type_id, seq_no),
+  FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no) ON DELETE CASCADE,
+  FOREIGN KEY (callee_type_id, callee_seq_no) REFERENCES method (type_id, seq_no) ON DELETE CASCADE,
   -- TODO: Enable this foreign key after fixing jpa-entity-generator to suppress generation of OntToMany relation.
   -- FOREIGN KEY (
   --   type_id,
   --   method_seq_no,
   --   caller_seq_no
-  -- ) REFERENCES method_call (type_id, method_seq_no, seq_no),
+  -- ) REFERENCES method_call (type_id, method_seq_no, seq_no) ON DELETE CASCADE,
   --{commonColumns}
 );
 
@@ -148,7 +148,7 @@ CREATE TABLE entry_point (
   path VARCHAR(1023),
   http_method VARCHAR(10),
   PRIMARY KEY (type_id, method_seq_no),
-  FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no),
+  FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no) ON DELETE CASCADE,
   --{commonColumns}
 );
 
@@ -162,6 +162,6 @@ CREATE TABLE crud_point (
   type VARCHAR(1023),
   crud CHAR(1),
   PRIMARY KEY (type_id, method_seq_no, seq_no),
-  FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no),
+  FOREIGN KEY (type_id, method_seq_no) REFERENCES method (type_id, seq_no) ON DELETE CASCADE,
   --{commonColumns}
 );
