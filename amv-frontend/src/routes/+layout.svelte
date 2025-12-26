@@ -117,13 +117,6 @@
   }
 
   :global {
-    button {
-      // By default, it should be width 100%, (https://picocss.com/docs/button#form-buttons)
-      // but since it behaves unexpectedly when type="submit" is not used as specified,
-      // we force the width to be specified.
-      width: 100%;
-    }
-
     .del-color {
       color: var(--pico-del-color);
     }

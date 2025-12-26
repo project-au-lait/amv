@@ -78,18 +78,19 @@
     <div>
       <!--  TODO: fix SVQK also (function's name properties are not unique )-->
       <!-- <button type="submit" id="save" data-handler={save.name}> -->
-      <button type="submit" id="save" data-handler={save}>
-        {updateMode ? m.update() : m.register()}
-      </button>
+      <input
+        type="submit"
+        id="save"
+        value={updateMode ? m.update() : m.register()}
+        data-handler={save}
+      />
     </div>
     {#if updateMode}
       <div>
-        <button type="submit" id="analyze" data-handler={analyze}> {m.analyze()} </button>
+        <input type="submit" id="analyze" value={m.analyze()} data-handler={analyze} />
       </div>
       <div>
-        <button type="button" id="del" onclick={() => (showDeleteModal = true)}>
-          {m.delete()}
-        </button>
+        <input type="button" id="del" value={m.delete()} onclick={() => (showDeleteModal = true)} />
       </div>
     {/if}
   </div>
@@ -104,12 +105,16 @@
         <p>{m.deleteConfirmation()}</p>
         <div class="grid">
           <div>
-            <button class="secondary" type="button" onclick={() => (showDeleteModal = false)}
-              >{m.cancel()}</button
-            >
+            <input
+              class="secondary"
+              type="button"
+              id="cancel"
+              value={m.cancel()}
+              onclick={() => (showDeleteModal = false)}
+            />
           </div>
           <div>
-            <button type="submit" data-handler={del}>{m.delete()}</button>
+            <input type="submit" id="delete-confirm" data-handler={del} value={m.delete()} />
           </div>
         </div>
       </article>
