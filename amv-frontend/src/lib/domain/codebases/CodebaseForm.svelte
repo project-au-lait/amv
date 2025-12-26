@@ -92,7 +92,7 @@
     </div>
     {#if updateMode}
       <div>
-        <button type="submit" id="analyze" data-handler={analyze}> 解析 </button>
+        <button type="submit" id="analyze" data-handler={analyze}> {m.analyze()} </button>
       </div>
       <div>
         <button type="button" id="del" onclick={openDeleteModal}>
