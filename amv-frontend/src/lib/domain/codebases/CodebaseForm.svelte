@@ -4,8 +4,6 @@
   import FormValidator from '$lib/arch/form/FormValidator';
   import InputField from '$lib/arch/form/InputField.svelte';
   import TextArea from '$lib/arch/form/TextArea.svelte';
-  import SelectBox from '$lib/arch/form/SelectBox.svelte';
-  import CheckBox from '$lib/arch/form/CheckBox.svelte';
   import { messageStore } from '$lib/arch/global/MessageStore';
   import * as m from '$lib/paraglide/messages';
   import { string, date, boolean, number } from 'yup';
@@ -44,6 +42,16 @@
       await handleAfterSave(response);
       messageStore.show(m.saved());
     }
+  }
+
+  let showDeleteModal = $state(false);
+
+  function openDeleteModal() {
+    showDeleteModal = true;
+  }
+
+  function closeDeleteModal() {
+    showDeleteModal = false;
   }
 
   async function del() {
@@ -87,10 +95,30 @@
         <button type="submit" id="analyze" data-handler={analyze}> 解析 </button>
       </div>
       <div>
-        <button type="submit" id="del" data-handler={del}>
+        <button type="button" id="del" onclick={openDeleteModal}>
           {m.delete()}
         </button>
       </div>
     {/if}
   </div>
+  {#if showDeleteModal}
+    <dialog open>
+      <article>
+        <header>
+          <p>
+            <strong>{m.delete()} : {codebase.name}</strong>
+          </p>
+        </header>
+        <p>{m.deleteConfirmation()}</p>
+        <div class="grid">
+          <div>
+            <button class="secondary" type="button" onclick={closeDeleteModal}>{m.cancel()}</button>
+          </div>
+          <div>
+            <button type="submit" data-handler={del}>{m.delete()}</button>
+          </div>
+        </div>
+      </article>
+    </dialog>
+  {/if}
 </form>
