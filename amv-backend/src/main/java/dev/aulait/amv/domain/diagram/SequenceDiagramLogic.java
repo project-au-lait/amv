@@ -2,12 +2,15 @@ package dev.aulait.amv.domain.diagram;
 
 import dev.aulait.amv.arch.util.MethodUtils;
 import dev.aulait.amv.arch.util.SyntaxUtils;
+import dev.aulait.amv.domain.process.FlowStatementEntity;
 import dev.aulait.amv.domain.process.MethodCallEntity;
 import dev.aulait.amv.domain.process.MethodCallEntityId;
 import dev.aulait.amv.domain.process.MethodEntity;
 import dev.aulait.amv.domain.process.TypeEntity;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -30,6 +33,8 @@ public class SequenceDiagramLogic {
 
     List<MessageAggregate> messages = build(method);
 
+    List<SequenceDiagramElement> elements = organize(messages);
+
     Set<String> participantStereotypes = new LinkedHashSet<>();
     Set<String> paramOrReturnTypes = new LinkedHashSet<>();
     for (MessageAggregate message : messages) {
@@ -37,8 +42,10 @@ public class SequenceDiagramLogic {
       paramOrReturnTypes.addAll(message.getParamOrReturnTypes());
     }
 
+    String plantMessage = write(elements, participableStereotypes);
+
     return SequenceDiagramVo.builder()
-        .diagram(new DiagramVo(write(messages, participableStereotypes)))
+        .diagram(new DiagramVo(plantMessage))
         .participantStereotypes(participantStereotypes)
         .paramOrReturnTypes(paramOrReturnTypes)
         .build();
@@ -109,6 +116,10 @@ public class SequenceDiagramLogic {
             .method(call.getMethod())
             .depth(depth)
             .build();
+
+    FlowStatementEntity flowStmt = call.getFlowStatement();
+    message.setFlowStatement(flowStmt);
+
     messages.add(message);
     context.add(call);
 
@@ -148,12 +159,23 @@ public class SequenceDiagramLogic {
     }
   }
 
-  public String write(List<MessageAggregate> messages, List<String> participableStereotypes) {
-    StringBuilder sb = new StringBuilder();
+  public String write(List<SequenceDiagramElement> elements, List<String> participableStereotypes) {
 
+    StringBuilder sb = new StringBuilder();
     sb.append("@startuml\n");
 
-    for (MessageAggregate message : messages) {
+    for (SequenceDiagramElement element : elements) {
+
+      if (element instanceof FlowStatementAggregate flowStmt) {
+        String flowLine = flowStmt.toString();
+        if (!flowLine.isEmpty()) {
+          sb.append(flowLine).append("\n");
+        }
+        continue;
+      }
+
+      MessageAggregate message = (MessageAggregate) element;
+
       if (!writeable(message, participableStereotypes)) {
         continue;
       }
@@ -228,5 +250,42 @@ public class SequenceDiagramLogic {
 
   private String activation(MessageAggregate message) {
     return message.isReturnMessage() ? "deactivate " : "activate ";
+  }
+
+  private List<SequenceDiagramElement> organize(List<MessageAggregate> messages) {
+
+    List<SequenceDiagramElement> elements = new ArrayList<>();
+    Deque<FlowStatementEntity> flowStmt = new ArrayDeque<>();
+
+    for (MessageAggregate msg : messages) {
+      FlowStatementEntity stmt = msg.getFlowStatement();
+
+      if (stmt != null && flowStmt.stream().noneMatch(s -> s == stmt)) {
+        elements.add(flowStart(stmt));
+        flowStmt.push(stmt);
+      }
+
+      elements.add(msg);
+
+      while (!flowStmt.isEmpty() && shouldClose(msg)) {
+        elements.add(flowEnd(flowStmt.pop()));
+      }
+    }
+    return elements;
+  }
+
+  private FlowStatementAggregate flowStart(FlowStatementEntity stmt) {
+    FlowStatementAggregate flowStmt = new FlowStatementAggregate();
+    flowStmt.setKind(stmt.getKind());
+    flowStmt.setContent(stmt.getContent());
+    return flowStmt;
+  }
+
+  private FlowStatementAggregate flowEnd(FlowStatementEntity stmt) {
+    return new FlowStatementAggregate();
+  }
+
+  private boolean shouldClose(MessageAggregate msg) {
+    return msg.isReturnMessage() && msg.getFlowStatement() == null;
   }
 }

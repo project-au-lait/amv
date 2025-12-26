@@ -45,9 +45,9 @@
 
       {#if andMoreCount > 0}
         <li>
-          {m.and}
+          {m.and()}
           {andMoreCount}
-          {m.more}
+          {m.more()}
         </li>
       {/if}
     </ul>

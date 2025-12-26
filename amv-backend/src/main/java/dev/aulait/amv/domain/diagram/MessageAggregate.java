@@ -1,5 +1,6 @@
 package dev.aulait.amv.domain.diagram;
 
+import dev.aulait.amv.domain.process.FlowStatementEntity;
 import dev.aulait.amv.domain.process.MethodEntity;
 import dev.aulait.amv.domain.process.MethodParamEntity;
 import java.util.HashSet;
@@ -10,10 +11,11 @@ import lombok.Getter;
 
 @Builder
 @Data
-public class MessageAggregate {
+public class MessageAggregate implements SequenceDiagramElement {
   private ParticipantAggregate from;
   private ParticipantAggregate to;
   private MethodEntity method;
+  private FlowStatementEntity flowStatement;
   private int depth;
   private boolean async;
   private boolean returnMessage;
