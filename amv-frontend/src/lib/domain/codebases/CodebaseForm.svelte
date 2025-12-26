@@ -46,14 +46,6 @@
 
   let showDeleteModal = $state(false);
 
-  function openDeleteModal() {
-    showDeleteModal = true;
-  }
-
-  function closeDeleteModal() {
-    showDeleteModal = false;
-  }
-
   async function del() {
     const response = await ApiHandler.handle<string>(fetch, (api) =>
       api.codebases.delete(codebase.id, codebase)
@@ -95,7 +87,7 @@
         <button type="submit" id="analyze" data-handler={analyze}> {m.analyze()} </button>
       </div>
       <div>
-        <button type="button" id="del" onclick={openDeleteModal}>
+        <button type="button" id="del" onclick={() => (showDeleteModal = true)}>
           {m.delete()}
         </button>
       </div>
@@ -112,7 +104,9 @@
         <p>{m.deleteConfirmation()}</p>
         <div class="grid">
           <div>
-            <button class="secondary" type="button" onclick={closeDeleteModal}>{m.cancel()}</button>
+            <button class="secondary" type="button" onclick={() => (showDeleteModal = false)}
+              >{m.cancel()}</button
+            >
           </div>
           <div>
             <button type="submit" data-handler={del}>{m.delete()}</button>
